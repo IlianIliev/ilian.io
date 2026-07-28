@@ -6,7 +6,7 @@ tags = ["ChoiceField", "Development", "django-forms", "Django", "template tags"]
 draft = false
 +++
 <h2>... or what to do in case that you need a special design for your choice fields</h2>
-<p><strong>The problem:</strong> Few posts ago I talked(wrote) about <a href="http://ilian.i-n-i.org/django-forms-choicefield-with-dynamic-values/" title="Django forms ChoiceField and with dynamic values">Django forms ChoiceField and with dynamic values</a> and now it is time to take a look at the front end and how we display these values to the user. I will use the code from that post:<br/>
+<p><strong>The problem:</strong> Few posts ago I talked(wrote) about <a href="/django-forms-choicefield-with-dynamic-values/" title="Django forms ChoiceField and with dynamic values">Django forms ChoiceField and with dynamic values</a> and now it is time to take a look at the front end and how we display these values to the user. I will use the code from that post:<br/>
 <div class="highlight"><pre><span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
     <span class="n">my_choice_field</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">MY_CHOICES</span><span class="p">)</span>
 </pre></div>
@@ -30,7 +30,7 @@ and then display it in the template using {{form.my_choice_field}}.
       <span class="p">{</span><span class="o">%</span> <span class="n">ifequal</span> <span class="n">form</span><span class="o">.</span><span class="n">my_choice_field</span><span class="o">.</span><span class="n">data</span> <span class="n">choice</span><span class="o">.</span><span class="mi">0</span> <span class="o">%</span><span class="p">}</span> 
          <span class="n">checked</span><span class="o">=</span><span class="s">"checked"</span>
       <span class="p">{</span><span class="o">%</span> <span class="n">endifequal</span> <span class="o">%</span><span class="p">}</span><span class="o">/&gt;</span>
-    <span class="o">&lt;</span><span class="n">label</span> <span class="k">for</span><span class="o">=</span><span class="s">""</span><span class="o">&gt;</span><span class="p">{{</span><span class="n">choice</span><span class="o">.</span><span class="mi">1</span><span class="p">}}</span><span class="o">&lt;/</span><span class="n">label</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">label</span> <span class="k">for</span><span class="o">=</span><span class="s">""</span><span class="o">&gt;</span><span class="p">&#123;&#123;</span><span class="n">choice</span><span class="o">.</span><span class="mi">1</span><span class="p">&#125;&#125;</span><span class="o">&lt;/</span><span class="n">label</span><span class="o">&gt;</span>
   <span class="o">&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
 <span class="p">{</span><span class="o">%</span> <span class="n">endfor</span> <span class="o">%</span><span class="p">}</span>
 <span class="o">&lt;/</span><span class="n">ul</span><span class="o">&gt;</span>

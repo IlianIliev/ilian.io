@@ -6,7 +6,7 @@ tags = ["Development", "django-cms", "Django CMS", "django-models", "Django"]
 draft = false
 +++
 <h2>... or how to use the extended model in your templates and especially in the built-in navigation</h2>
-<p><strong>The problem: </strong>As you can see in the <a href="http://ilian.i-n-i.org/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a> there is a very simple way to extend the page model with some custom fields without changing the core code. But how to use your custom fields inside your templates? If you have an instance of the Page model everything is fine. You can just access its properties and everything is fine. Unfortunately there is a problem if you try it inside a custom template used for show_menu template tag.</p>
+<p><strong>The problem: </strong>As you can see in the <a href="/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a> there is a very simple way to extend the page model with some custom fields without changing the core code. But how to use your custom fields inside your templates? If you have an instance of the Page model everything is fine. You can just access its properties and everything is fine. Unfortunately there is a problem if you try it inside a custom template used for show_menu template tag.</p>
 <p><strong>Speciality: </strong>I was really surprised when I tried to access my custom properties inside the mentioned above template and nothing happened. After some investigation I found that the elements in show_menu are not instances of the Page model but of NavigationNode. And even more surprised that NavigationNode does not contain instance of the Page model in its properties. So I was in need to extend the NavigationNode class.</p>
 <p><strong>Solution: </strong>First of all I decided to make it easier to access the custom properties I created before, so I added the following code to it:<br/>
 <div class="highlight"><pre><span class="k">class</span> <span class="nc">PageAvatars</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
@@ -23,7 +23,7 @@ draft = false
 <span class="n">Page</span><span class="o">.</span><span class="n">big_avatar</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">_big_avatar</span><span class="p">())</span>
 </pre></div>
 
-For simplicity I have skipped the imports, but you can check them in the <a href="http://ilian.i-n-i.org/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a>
+For simplicity I have skipped the imports, but you can check them in the <a href="/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a>
 So now I have a "shortcut" for accessing the big_avatar and it is time to make the Page object available in the NavigationNode.
 
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">menus.base</span> <span class="kn">import</span> <span class="n">NavigationNode</span>
@@ -33,7 +33,7 @@ So now I have a "shortcut" for accessing the big_avatar and it is time to make t
 
 Line 2 defines a property("page_instance") that returns a Page object based on the primary key of the NavigationNode.id that equals to the corresponding Page primary key. Now you can use it in your custom navigation templates in the following way.
 <div class="highlight"><pre><span class="p">{</span><span class="o">%</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span> <span class="o">%</span><span class="p">}</span>
-    <span class="p">{{</span><span class="n">child</span><span class="o">.</span><span class="n">page_instance</span><span class="o">.</span><span class="n">big_avatar</span><span class="p">}}</span>
+    <span class="p">&#123;&#123;</span><span class="n">child</span><span class="o">.</span><span class="n">page_instance</span><span class="o">.</span><span class="n">big_avatar</span><span class="p">&#125;&#125;</span>
 <span class="p">{</span><span class="o">%</span> <span class="n">endfor</span> <span class="o">%</span><span class="p">}</span>
 </pre></div>
 </p>

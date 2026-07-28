@@ -20,7 +20,7 @@ Unfortunately in the real live the choices allowed for the connection are freque
 In the case of choices you just have to pass list/tuple each element of which contains the value to be stored and human readable name for the choice. Unfortunately this one is computed on server run and is not updated with new items during run-time.
 If you use limit_choices_to you may pass to it some kind of filter expression e.g. limit_choices_to = {'pub_date__lte': datetime.now} but this not always can do the job.
 
-<strong>Speciality: </strong> So if you want dynamic choices in the admin drop down you have to write a method that will return list with options and bind it to the form(as shown in <a href="http://ilian.i-n-i.org/django-forms-choicefield-with-dynamic-values/" title="Django forms ChoiceField with dynamic values…">Django forms ChoiceField with dynamic values…</a>) which is used by admin.
+<strong>Speciality: </strong> So if you want dynamic choices in the admin drop down you have to write a method that will return list with options and bind it to the form(as shown in <a href="/django-forms-choicefield-with-dynamic-values/" title="Django forms ChoiceField with dynamic values…">Django forms ChoiceField with dynamic values…</a>) which is used by admin.
 This will work great but if you decided to add this column in admin`s list_filter you will see all element from the connected model in filter. How to limit them to the same list used for the form choices?
 
 <strong>Solution: </strong> The simplest solutions is to extend RelatedFilterSpec, overwrite its default choices and add a single row to the model:
@@ -39,4 +39,4 @@ This will work great but if you decided to add this column in admin`s list_filte
     <span class="n">question</span><span class="o">.</span><span class="n">custom_filter_spec</span> <span class="o">=</span> <span class="bp">True</span> <span class="c"># this is used to identify the fields which use the custom filter</span>
 </pre></div>
 </p>
-<p><strong> Final word: </strong> The solutions is pretty simple and really easy to implement but should be used carefully. If your filtering method(in my case get_questions) is slow/resource consuming it may bring you troubles. Here is the place where and you should think about caching it. This is a place where a <a href="http://ilian.i-n-i.org/caching-web-sites-and-web-applications/">application cache</a> can be used. Hope this will help you as much as it helped me.</p>
+<p><strong> Final word: </strong> The solutions is pretty simple and really easy to implement but should be used carefully. If your filtering method(in my case get_questions) is slow/resource consuming it may bring you troubles. Here is the place where and you should think about caching it. This is a place where a <a href="/caching-web-sites-and-web-applications/">application cache</a> can be used. Hope this will help you as much as it helped me.</p>

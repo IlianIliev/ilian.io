@@ -42,6 +42,6 @@ draft = false
 </p>
 <p>The form here should be used in the admin(add/edit) page of the model. We define that the product_id field will use the select widget and we use a method that connect to the CRM and returns the product choices list.<br/>
 The "self.instance.id" check is used to fill the name field for product that are already saved.</p>
-<p><strong>Final words:</strong> This is a very simple example but its idea is to show the basic way to connect your models with another app. I strongly recommend you to use <a href="http://ilian.i-n-i.org/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">caching</a> if your CRM data is not modified very often in order to save some bandwidth and to speed up your application.<br/>
+<p><strong>Final words:</strong> This is a very simple example but its idea is to show the basic way to connect your models with another app. I strongly recommend you to use <a href="/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">caching</a> if your CRM data is not modified very often in order to save some bandwidth and to speed up your application.<br/>
 Also if you have multiple field it may be better to overwrite the __getattr__ method instead of defining separate one for each property that you need to pull from the outer application.</p>
 <p>P.S. Thanks to <a href="http://migaat.blogspot.com/">Miga</a> for the code error report.</p>

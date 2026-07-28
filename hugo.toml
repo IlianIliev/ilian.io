@@ -2,8 +2,10 @@ baseURL = "https://ilian.io/"
 title = "ilian.io"
 theme = "ilian"
 languageCode = "en-us"
-paginate = 5
 enableRobotsTXT = true
+
+[pagination]
+  pagerSize = 5
 
 [permalinks]
   [permalinks.page]
@@ -26,5 +28,5 @@ enableRobotsTXT = true
   author = "Ilian Iliev"
   description = "Ilian Iliev's personal blog about Python, Django, and web development"
   githubURL = "https://github.com/ilianiliev"
-  linkedinURL = "https://www.linkedin.com/pub/eng-ilian-iliev/20/716/6bb"
+  linkedinURL = "https://www.linkedin.com/in/iliansiliev"
   googleAnalyticsID = "UA-16684989-1"
