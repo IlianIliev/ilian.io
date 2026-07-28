@@ -1,0 +1,15 @@
++++
+title = "Google Analytics referring sites and https"
+date = "2010-09-16T20:16:08Z"
+slug = "google-analytics-referring-sites-and-https"
+tags = ["Development", "google analytics", "https", "referring sites"]
+draft = false
++++
+<p><strong>The problem:</strong> recently a client reported the he does not see another site he owns in the list of referring sites in his Google Analytics account(for his main website) but was absolutely sure that he recieves trafic from this website.</p>
+<p><strong>The research and the reason:</strong> at first I thought that the problem is cause by the 301 redirects the site use to send you to the propper language version of the website(cookies based). But after some reasearch I found that these 301 redirects keep the original referrer so the problem was somewhere else. So I open a page from the second site, click a link to the main one and run "document.referrer" in the console, strange but the answer was empty. I tried it clicking link from other site and everything was ok, the result was the referring site so the problem really was with this one. After some more wondering what is really going on I finally noticed that the problem website was working under secured(https) connection.<br/>
+According to <a href="http://tools.ietf.org/html/rfc2616#section-15.1.3">RFC2616 section 15.1.3</a> </p>
+<blockquote><p>Clients SHOULD NOT include a Referer header field in a (non-secure) HTTP request if the referring page was transferred with a secure protocol.</p></blockquote>
+<p>OK, so the reason for the problem was found but how to solve it?</p>
+<p><strong>The solution:</strong> Google Analytics allows you to override the referral URL so the only thing you need is to add get parameter to the link url with the url of the pointing page, for example: http://main.com/news/?referral_site=second-website.com<br/>
+Then place some logic that will check for "referral_site" parameter and use the<a href="http://code.google.com/apis/analytics/docs/gaJS/gaJSApiCampaignTracking.html#_gat.GA_Tracker_._setReferrerOverride">_setReferrerOverride()</a> gladly provided by the GA team to override the referral address.</p>
+<p>If you have another solutions or questions please let me know.</p>

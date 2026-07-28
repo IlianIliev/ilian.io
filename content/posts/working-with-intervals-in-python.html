@@ -1,0 +1,65 @@
++++
+title = "Working with intervals in Python"
+date = "2015-02-22T18:55:50Z"
+slug = "working-with-intervals-in-python"
+tags = []
+draft = false
++++
+<p>
+<strong>Brief:</strong> Working with intervals in Python is really easy, fast and simple. If you want to learn more just keep reading.
+</p>
+<p>
+<strong>Task description:</strong> Lets say that the case if the following, you have multiple users and each one of them has achieved different number of points on your website. So you want, to know how many users haven't got any point, how many made between 1 and 50 points, how many between 51 and 100 etc. In addition at 1000 the intervals start increasing by 100 instead of 50.
+</p>
+<p>
+<strong>Preparing the intervals:</strong> Working with lists in Python is so awesome, so creating the intervals is quite a simple task.
+
+<div class="highlight"><pre><span class="n">intervals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \  <span class="c"># The zero intervals</span>
+            <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">50</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)]</span> <span class="o">+</span> \  <span class="c"># The 50 intervals</span>
+            <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)]</span> <span class="o">+</span> \  <span class="c"># The 100 intervals</span>
+            <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">1000</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">102</span><span class="p">)]</span>  <span class="c"># the 1000 intervals</span>
+</pre></div>
+
+</p>
+<p>
+So after running the code above we will have a list with the maximum number of points for each interval. Now it is time to prepare the different buckets that will store the users count. To ease this we are going to use a defaultdict.
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="n">buckets</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+</p>
+<p>
+This way, we can increase the count for each bucket without checking if it exists. Now lets got to counting
+
+<div class="highlight"><pre><span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[</span><span class="n">bisect</span><span class="o">.</span><span class="n">bisect_left</span><span class="p">(</span><span class="n">intervals</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">points</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="c"># we are over the last bucket, so we put in in it</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">buckets</span><span class="p">[</span><span class="n">bucket</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+
+</p>
+<p>
+<strong>How it works:</strong> Well it is quite simple. The bisect.bisect_left uses a binary search to estimate the position where an item should be inserted to keep the list, in our case <strong>intervals</strong> sorted. Using the position we take the value from the invervals that represent the bucker where the specified number should go. And we are ready.
+
+The result will looks like:
+<div class="highlight"><pre>    <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">30</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="mi">1100</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">}</span>
+</pre></div>
+
+</p>
+<p>
+<strong>Final words:</strong> As you see when the default dict is used it does not have values for the empty buckets. This can be good or bad depending from the requirements how to present the data but it can be esily fixed by using the items from the intervals as keys for the buckets.
+</p>
+<p>
+P.S. Comments and ideas for improvement are always welcome.
+</p>

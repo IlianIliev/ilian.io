@@ -1,0 +1,13 @@
+{
+  "name": "ilian-io",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "hugo server --buildDrafts",
+    "build": "hugo --minify",
+    "new": "hugo new"
+  },
+  "devDependencies": {
+    "hugo-extended": "0.147.9"
+  }
+}

@@ -1,0 +1,10 @@
++++
+title = "Python comparisons speed depends from the result"
+date = "2010-08-18T09:52:39Z"
+slug = "python-comparisons-speed-depends-from-the-result"
+tags = ["Development", "Python", "speed", "testing"]
+draft = false
++++
+<p>Recently I decided to check whether "less than or equal"(&lt;=) is slower than "bigger"(&gt;) and I was surprised from the result. In my case "bigger" was slower. I was amazed, according to the simple logic in the case of less then or equal we need one or two operation(for example we first check for equality and the for then for "is lower"), so I asked at <a href="http://stackoverflow.com/">stackoverflow</a> what causes this and here is the answer.</p>
+<p>The speed of the operation does not depends from the operation itself but from the result. When the result is false it is calculated faster the if it is true. You can see the disassembler trace <a href="http://stackoverflow.com/questions/3369304/why-is-slower-than">here</a>.</p>
+<p>Have you found other operations when python acts "strange"?</p>

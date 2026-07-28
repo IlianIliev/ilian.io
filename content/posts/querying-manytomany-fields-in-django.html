@@ -1,0 +1,33 @@
++++
+title = "Querying ManyToMany fields in Django..."
+date = "2011-03-23T19:15:25Z"
+slug = "querying-manytomany-fields-in-django"
+tags = ["Development", "django-models", "Django ORM", "Django", "manytomany"]
+draft = false
++++
+<h2>... or how to select items that have one or more categories matching with other item categories</h2>
+<p><strong>The problem:</strong> having a Many To Many relation(ManyToManyField) is really useful when you have to link one object to many other. For example one artist may play in several styles, or a teacher can teach more than one subjects. I`ll use the latter example for the post. If you want to get all teachers that teach (for example) "music" you just have to do something like:<br/>
+<div class="highlight"><pre><span class="n">Teacher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subjects</span> <span class="o">=</span> <span class="n">music_obj</span><span class="p">)</span>
+</pre></div>
+
+The real problem comes when you want to select all teachers that have subject matching one or more of another teacher subjects. For example "<strong>teacher_a</strong>" teaches several subject and we want to find all his colleges that teach at least one of his.
+
+<strong>Solution:</strong> to achieve this we have to use the Q object(imported from django.db.models) in a way similar to the making of "OR" query.
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Q</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">teacher_a</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">subjects</span> <span class="o">=</span> <span class="n">subject</span><span class="p">)</span> 
+<span class="n">colegues</span> <span class="o">=</span> <span class="n">Teacher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</pre></div>
+<br/>
+Lets see what happens line by line:</p>
+<p style="margin-left: 20px;">
+<strong>1)</strong> import the Q class<br/>
+<strong>2)</strong> create empty Q object<br/>
+<strong>3)</strong> iterate over every subject taught by the specified teacher<br/>
+<strong>4)</strong> on every iteration we add an "OR"-clause to the object corresponding to the current subject<br/>
+<strong>5)</strong> we use the generated query as a filter
+</p>
+<p>Have in mind that after using the Q object you have to sort your result(manually add order_by clause), because when you use Q the default ordering is not considered.</p>
+<p><strong>Final words:</strong> The speed of this method is not tested but to be honest I suspect that this can bring performance problems on big tables. In that case maybe you can speed the things up with custom SQL query. So the choice is yours - database independence or speed. Both ways have their pros and cons and its case specific which one you will choose.<br/>
+If you have found a better way or want to add something feel free to comment.</p>

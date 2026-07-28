@@ -1,0 +1,42 @@
++++
+title = "Django CMS Plugins with selectable template ..."
+date = "2011-10-09T21:25:07Z"
+slug = "django-cms-plugins-with-selectable-template"
+tags = ["Development", "django-cms", "Django CMS", "django cms plugins", "Django", "Web"]
+draft = false
++++
+<h2>... or how to reuse your plugins inside sections with different design</h2>
+<p><strong>Problem:</strong> Frequently on the websites I am developing I need to display same set of data in several different ways. For example if I have a news box that needs to appear in different sections of the website e.i. in sidebar, main content etc. Using <a href="https://www.django-cms.org/" target="_blank" title="Django CMS">Django CMS</a> plugins make this quite easy.<br/>
+For simplicity we will take the following case. An image/text tuple with two layout variations - image on left of text and image on right.</p>
+<p style="text-align: center"><img alt="Django CMS Plugins" src="http://ilian.i-n-i.org/wp-content/uploads/2011/10/Plugin_templates_Page_1-1.png" style="width: 424px; margin: 0 auto;" title="Django CMS Plugins"/></p>
+<p>Same data but different layout. All you need to do is just to allow your users to change the plugin template according to their needs. If you don't have experience with Django CMS Plugins I advice you to check how to <a href="http://docs.django-cms.org/en/2.1.3/extending_cms/custom_plugins.html" target="_blank" title="create custom Django CMS Plugins">create custom Django CMS Plugins</a> before you continue with solution.</p>
+<p><strong>Solution:</strong> First you will have to create a tuple holding your templates(and their human readable names) and add a field that will hold the chosen template to the plugin model.</p>
+<p><div class="highlight"><pre><span class="c">#models.py</span>
+<span class="n">PLUGIN_TEMPLATES</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="p">(</span><span class="s">'image_on_left.html'</span><span class="p">,</span> <span class="s">'Image on left'</span><span class="p">),</span>
+  <span class="p">(</span><span class="s">'image_on_right.html'</span><span class="p">,</span> <span class="s">'Image on right'</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">SamplePlugin</span><span class="p">(</span><span class="n">CMSPlugin</span><span class="p">):</span>
+    <span class="c"># your plugin properties here</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s">'Template'</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+                                <span class="n">choices</span> <span class="o">=</span> <span class="n">PLUGIN_TEMPLATES</span><span class="p">)</span>
+</pre></div>
+
+
+Now it is time to tweak the template render method too:
+
+<div class="highlight"><pre><span class="c">#cms_plugins.py</span>
+<span class="k">class</span> <span class="nc">CMSSamplePlugin</span><span class="p">(</span><span class="n">CMSPluginBase</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">SamplePlugin</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">'Sample plugin'</span>
+    <span class="n">render_template</span> <span class="o">=</span> <span class="n">PLUGIN_TEMPLATES</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">and</span> <span class="n">instance</span><span class="o">.</span><span class="n">template</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">render_template</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">template</span>
+        <span class="c">#your stuff here</span>
+        <span class="k">return</span> <span class="n">context</span>
+</pre></div>
+</p>
+<p><strong>Final words:</strong> Yep, this is all. Simple isn't it? It is amazing how sometimes such small things are so useful. If you are having bigger difference in the layout of your templates you will probably have to put a little more stuff in the context that some of your templates may not need but it is OK. Feel free to comment and if you are using this "trick" please add your use case - it will be interesting to see in how many different cases this works.</p>

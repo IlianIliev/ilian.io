@@ -1,0 +1,41 @@
++++
+title = "Foreign key to Django CMS page ..."
+date = "2011-07-14T19:24:41Z"
+slug = "foreign-key-to-django-cms-page"
+tags = ["Development", "django-admin", "django-cms", "Django CMS", "django-forms", "django-models", "Django", "Python", "usability"]
+draft = false
++++
+<h2> ... how to make usable drop-downs with Django CMS pages </h2>
+<p><strong>Problem:</strong> some times when you create custom applications or plugins for Django CMS you need a property that connects the current item to a page in the CMS. Nothing simple than this - you just add a ForeignKey in your model that points to the Page model and everything is (almost)fine. Example:</p>
+<p><div class="highlight"><pre><span class="kn">from</span> <span class="nn">cms.models</span> <span class="kn">import</span> <span class="n">Page</span>
+
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="c"># some model attributes here</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Page</span><span class="p">)</span>    
+</pre></div>
+
+
+If you registered your model in Django admin or just add a model form to it you will see something like this:
+<p style="text-align: center"><img alt="Django Admin Screenshot" class="alignnone size-full wp-image-438" height="342" src="http://ilian.i-n-i.org/wp-content/uploads/2011/07/django-admin.png" title="Django Admin Screenshot" width="563"/></p>
+Cool right? Not exactly. The problem is that these pages are in hierarchical structure and listing them in a flat list may be/is little confusing. So let's indent them accordingly to their level in the hierarchy.
+
+<strong>Solution:</strong> The easies way to achieve this indentation is to overwrite the choices list of the ForeignKey field in the ModelForm __init__ method.
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">MyModelForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MyModelForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'page'</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">__iter__</span><span class="p">()</span><span class="o">.</span><span class="n">next</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'page'</span><span class="p">]</span><span class="o">.</span><span class="n">queryset</span><span class="p">:</span>
+            <span class="n">choices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">'-'</span><span class="o">*</span><span class="n">page</span><span class="o">.</span><span class="n">level</span><span class="p">,</span> <span class="n">page</span><span class="o">.</span><span class="n">__unicode__</span><span class="p">()]))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'page'</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span> 
+</pre></div>
+<br/>
+The magic lies between lines 7 and 11, on line 7 we create a list with one element the default empty option for the drop down. The need to use "__iter__().next()" comes from the fact that the choices attribute of the fields is django.forms.models.ModelChoiceIterator object which is iterable, but not indexable i.e. you can not just use self.fields['url'].choices[0].<br/>
+After we had the empty choice now it is time to add the real ones, so we iterate over the queryset(8th line) that holds them and for each item we add a tuple to our choices list(10). The first item of the tuple is the page id - nothing special, but the second one... here the <strong>python magic</strong> comes. We multiple the minus sign('-') by the page level and join the result with the page title. The only thing left is to replace the field choices(line 12) and here is the result:</p>
+<p style="text-align: center"><img alt="Django Admin - usable drop-down" class="alignnone size-full wp-image-443" height="342" src="http://ilian.i-n-i.org/wp-content/uploads/2011/07/django-admin-2.png" title="Django Admin - usable drop-down" width="563"/></p>
+<p><strong>Final words:</strong> For me this is much more usable than the flat list. Of course you can modify the queryset to return only published pages or filter the results in other way and still use the identation code from above.<br/>
+I'll be happy to hear your thoughts on this.</p>

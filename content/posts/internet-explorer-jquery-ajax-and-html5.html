@@ -1,0 +1,29 @@
++++
+title = "Internet Explorer, jQuery, AJAX and HTML5..."
+date = "2011-03-28T20:59:02Z"
+slug = "internet-explorer-jquery-ajax-and-html5"
+tags = ["AJAX", "Development", "HTML5", "Internet Explorer", "jQuery", "valid HTML"]
+draft = false
++++
+<h2>... or how "invalid" HTML can break your JavaScript without a trace</h2>
+<p><strong>The problem:</strong> A few days ago I had the following case. A script that I wrote was working everywhere except in the Internet Explorer(IE) 8 and 7. To be honest I don`t remember the exact error message but when I use the built-in debugger it point me to a row X in jQuery.min.js(those of you who have ever opened a minified JavaScript file know that it is practically unreadable) and not only this, but also provide me with an useless trace-back totally unrelated to the function called. So I decided to start executing the code that break line by line(good for me that I was activated on a "click" so I knew at least where to start).</p>
+<p><strong>Speciality:</strong> The extra hardness here came from the fact that the problem code was loaded as a result from an AJAX request so the debugger was powerless. So I started with the simplest approach I could imagine - alerting a text/value after every row to see where the error appears. The problem was in the following code:<br/>
+[sourcecode type="javascript"]
+$('#my_element').html(data)
+
+</p>
+
+Obviously there was something wrong during the execution of the html() method so I started exploring the results from the jQuery selectors. 
+[sourcecode type="javascript"]
+alert($('container')) // result: [object Object]
+alert($('container').html) // result: function(a){...}
+alert($('container').html()) // result: blank (empty string)
+
+
+<p>I was getting close. The only thing left was to find why the html() method was returning an empty string when I was sure that there was something inside this element(I ran a quick check in FireFox) but I was stuck again.</p>
+<p><strong>Investigation:</strong> After a few minutes walking in the room later an old issue came to my mind. I ran into it while I was working on a social network project last year. Javascript/jQuery(I didn`t find which one or both) used to act strange when loading invalid HTML with AJAX inside a page under IE.<br/>
+"Ok, probably a badly closed tag or similar or other fix in a second thing" was my first thought but... unfortunately it turned to be more complex.</p>
+<p><strong>Speciality 2:</strong> Did I mention it was an HTML5 page? Yeah, I now that IE7&amp;8 does not support HTML5 so we used <a href="http://www.modernizr.com/">modernizr</a> but how to recall it on an HTML fragment.</p>
+<p><strong>Solution:</strong> My favorite <a href="http://stackoverflow.com/">StackOverflow</a> come in hand with <a href="http://stackoverflow.com/questions/3704800/reloading-modernizr-after-ajax">reloading-modernizr-after-ajax</a>. Following the answer I visited <a href="http://jdbartlett.github.com/innershiv/">innerShiv</a>, downloaded the plugin and tried again. This time no error but also no reaction on the click - It looked like I was skipping something. Although this it is not explicitly said it looks like that if you don`t pass "false" as second argument of the innerShiv call as in the <a href="http://jdbartlett.github.com/innerShiv/#jquery">innershiv jQuery notes</a> the JavaScript code is not executed. I added it and the problem was fixed. </p>
+<p><strong>Conclusion:</strong> Should I say that I hate IE? Yes, No, Maybe. In the matter of fact I doubt that there is a web developer that uses IE as a primary browser but I have to confess that this time we were both guilty(our developers team and the IE). We used an "invalid code", IE breaks our JavaScript - "eye for an eye" or whatever it is called. The important here is not whose fault it is but to learn from our mistakes. Blaming a two versions old browser is not beneficial to anyone. But this was a good experience and I am sure that I`ll meet this problem again.<br/>
+</p>

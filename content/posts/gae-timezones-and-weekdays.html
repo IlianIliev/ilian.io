@@ -1,0 +1,32 @@
++++
+title = "GAE, Timezones and weekdays..."
+date = "2010-05-23T08:03:17Z"
+slug = "gae-timezones-and-weekdays"
+tags = ["Development", "Google App Engine", "Python", "PyTZ", "timezones"]
+draft = false
++++
+<h2>... or how to find the date of week in specified timezone, no matter where your server is.</h2>
+<p><strong>The problem</strong>: I maintain a site targeting user in single country(single timezone) and I have to create administration based on a day of week(show this on Monday, that on Tuesday etc.). The site is based on Google App Engine Platform.</p>
+<p>The simplest and most obvious solutions is to take the current time and add/substract the difference between server timezone and your target timezone. Unfortunately this is not going to work in our case.</p>
+<p><strong>Speciality</strong>: As you may know google have multiple data centers all over the world.</p>
+<p><img alt="" src="https://docs.google.com/File?id=df3t78k5_54gf599vc7_b"/><br/>
+(more info at<br/>
+<a href="http://royal.pingdom.com/2008/04/11/map-of-all-google-data-center-locations/" id="mkii" title="Map of Google Servers">royal.pingdom.com</a>.)</p>
+<p>So you can not be sure which server is currently responsible for your app. Also you have a DST(daylight saving time) that also must be included in calculation. Fortunately you can use UTC time and<br/>
+<a href="http://code.google.com/p/gae-pytz/" id="g80m" title="PyTZ for Google App Engine">PyTZ for GAE</a>.</p>
+<p><strong>Solution</strong>:<br/>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">pytz</span> <span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="n">bg_zone</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Sofia'</span><span class="p">)</span>
+<span class="n">bg_zone_time</span> <span class="o">=</span> <span class="n">bg_zone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
+<span class="n">day_of_week</span> <span class="o">=</span> <span class="n">bg_zone_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%w"</span><span class="p">)</span>
+</pre></div>
+</p>
+<p>
+<strong>Explanation</strong>:<br/>
+#5) create timezone object corresponding to your timezone(in my case this is Europe/Sofia)<br/>
+#6) get the correct time for the specified timezone calling localize method of the timezone object with current UTC time as parameter<br/>
+#7) using time formatting to get the day of week. There is simple catch here, at first I try it with weekday() method and get incorrect results. It looks like the method ignores the timezone/DST correction, so you have to use strftime().
+</p>
+<p><strong>Final words</strong>: I didn`t test all methods so I couldn`t say which one ignores the timezone and which not, but I hope this article will be helpful for someone facing this or similar problem. Any correction and code improvements will be appreciated.</p>

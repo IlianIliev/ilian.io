@@ -1,0 +1,34 @@
+{{ define "title" }}Tag: {{ .Title }} | {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="col-md-8">
+    <h1 class="bottom-dotted">Tag: {{ .Title }}</h1>
+
+    {{ range .Paginator.Pages }}
+    <article>
+        <h2 class="bottom-dotted">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h2>
+        <p class="meta gray">
+            Published at {{ .Date.Format "January 2, 2006" }}
+        </p>
+    </article>
+    {{ end }}
+
+    {{ $paginator := .Paginator }}
+    {{ if gt $paginator.TotalPages 1 }}
+    <nav>
+        <ul class="pager">
+            {{ if $paginator.HasPrev }}
+            <li class="previous"><a href="{{ $paginator.Prev.URL }}">&larr; Newer</a></li>
+            {{ end }}
+            {{ if $paginator.HasNext }}
+            <li class="next"><a href="{{ $paginator.Next.URL }}">Older &rarr;</a></li>
+            {{ end }}
+        </ul>
+    </nav>
+    {{ end }}
+</section>
+
+{{ partial "sidebar.html" . }}
+{{ end }}

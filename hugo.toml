@@ -1,0 +1,30 @@
+baseURL = "https://ilian.io/"
+title = "ilian.io"
+theme = "ilian"
+languageCode = "en-us"
+paginate = 5
+enableRobotsTXT = true
+
+[permalinks]
+  [permalinks.page]
+    posts = "/:slug/"
+
+[taxonomies]
+  tag = "tags"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML"]
+  taxonomy = ["HTML"]
+  term = ["HTML"]
+
+[services]
+  [services.disqus]
+    shortname = "YOUR_DISQUS_SHORTNAME"
+
+[params]
+  author = "Ilian Iliev"
+  description = "Ilian Iliev's personal blog about Python, Django, and web development"
+  githubURL = "https://github.com/ilianiliev"
+  linkedinURL = "https://www.linkedin.com/pub/eng-ilian-iliev/20/716/6bb"
+  googleAnalyticsID = "UA-16684989-1"

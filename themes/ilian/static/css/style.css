@@ -1,0 +1,305 @@
+html, body {
+    height: 100%;
+    background: url('../img/bg/Background-Light3.png') repeat;
+    background-size: 350px;
+}
+body {
+    font-size: 16px;
+}
+@font-face {
+    font-family: 'socicon';
+    src: url('../font/socicon-webfont.eot');
+    src: url('../font/socicon-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/socicon-webfont.woff') format('woff'),
+         url('../font/socicon-webfont.ttf') format('truetype'),
+         url('../font/socicon-webfont.svg#sociconregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'geometr415';
+    src: url('../font/geometr415-blk-bt-black.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.wrap {
+    position: relative;
+    /*height: 100%;*/
+    min-height: 100%;
+    margin-bottom: -50px;
+}
+
+.wrap:after {
+    content: '';
+    display: block;
+    clear: both;
+    height: 50px;
+}
+
+.container {
+    max-width: 1140px;
+}
+
+header {
+    background: #f0f0f0;
+    border-bottom: 1px solid #aaa;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.2);
+}
+
+footer {
+    /*margin-top: 1em;*/
+    /*padding: 1em 0;*/
+    height: 50px;
+}
+
+footer .container {
+    padding: 1em 1em 0 1em;
+    border-top: 1px solid #888;
+}
+
+/*article {*/
+    /*border-bottom: 1px solid #aaa;*/
+/*}*/
+
+a, a:hover {
+    color: #428bca;
+}
+
+h1 a:hover {
+    text-decoration: none;
+}
+
+.bottom-dotted {
+    border-bottom: 1px dotted #aaa;
+}
+
+h1 {
+    font-size: 3rem;
+    line-height: 4.5rem;
+}
+
+h2 {
+    font-size: 2.3rem;
+
+}
+
+.logo {
+    float: left;
+    height: auto;
+    padding: 0.5rem;
+    /*margin-top: 0.5rem;*/
+}
+
+nav a, nav a:hover {
+    font-family: 'geometr415';
+    font-size: 2rem;
+    color: #797979;
+    vertical-align: bottom;
+}
+
+.navbar-nav a:hover{
+    color: #444444;
+    background: none;
+}
+
+.navbar-nav a.active {
+    font-weight: bold;
+}
+
+ul.social li{
+    display: inline-block;
+    list-style-type: none;
+    font-size: 2rem;
+    color: #000;
+    padding: 10px 10px 0 0;
+}
+
+ul.social li a {
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    line-height: 3rem;
+    padding: 0;
+}
+
+ul.social li span {
+    display: inline-block;
+    width: 3rem;
+    height: 3rem;
+    vertical-align: middle;
+}
+
+ul.social li, ul.social-mobile-menu li {
+    line-height: 3rem;
+}
+
+.socicon span {
+    font-family: 'socicon' !important;
+    display: inline-block;
+    border-radius: 100%;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 3rem;
+}
+
+span.socicon-github {
+    background: #ffffff;
+    color: #000000;
+    padding-top: 2px;
+}
+span.socicon-github:before {
+    content: 'Q';
+}
+
+
+span.socicon-twitter {
+    background: #fff;
+    color: #55ACEE;
+}
+span.socicon-twitter:before {
+    content: 'a';
+}
+
+
+span.socicon-facebook {
+    background: #3b5998;
+    color: #ffffff;
+}
+span.socicon-facebook:before {
+    content: 'b';
+}
+
+
+span.socicon-linkedin {
+    background: #007bb6;
+    color: #ffffff;
+}
+span.socicon-linkedin:before {
+    content: 'j';
+}
+
+
+span.socicon-google-plus {
+    background: #dd4b39;
+    color: #ffffff;
+}
+span.socicon-google-plus:before {
+    content: 'c';
+}
+
+
+span.socicon-rss {
+    background: #FF6600;
+    color: #ffffff;
+    font-size: 1.8rem;
+}
+span.socicon-rss:before {
+    content: ',';
+}
+
+/* Tag cloud styles */
+ul.tag-cloud {
+    list-style: none;
+    text-align: center;
+}
+ul.tag-cloud li {
+    display: inline-block;
+    padding: 0 5px;
+}
+
+.size1 {
+    font-size: 1.3rem;
+}
+.size2 {
+    font-size: 1.4rem;
+}
+.size3 {
+    font-size: 1.5rem;
+}
+.size4 {
+    font-size: 1.6rem;
+}
+.size5 {
+    font-size: 1.7rem;
+}
+.size6 {
+    font-size: 1.8rem;
+}
+.size7 {
+    font-size: 1.9rem;
+}
+.size8 {
+    font-size: 2rem;
+}
+.size8-plus {
+    font-size: 2rem;
+    font-weight: bold;
+}
+.size9 {
+    font-size: 2.2rem;
+}
+.size9-plus {
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+.size10 {
+    font-size: 2.4rem;
+}
+.size10-plus {
+    font-size: 2.4rem;
+    font-weight: bold;
+}
+.size11 {
+    font-size: 2.5rem;
+}
+.size11-plus {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+
+/* Search button styles */
+
+.gsc-control-cse {
+    background: transparent !important;
+    border: none !important;
+}
+
+.gsc-search-button {
+    padding: 4px 4px !important;
+    height: 2.8rem !important;
+    width: 2.8rem !important;
+}
+
+.gsc-input-box {
+    height: 2.8rem !important;
+}
+
+
+/* general style */
+
+.pad10 {
+    padding: 10px;
+}
+
+.left {
+    float: left;
+}
+
+
+.sidebar h3 {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #aaa;
+}
+
+.gray {
+    color: #666;
+}
+
+p.meta {
+    font-size: 0.8em;
+    padding-bottom: 1em;
+}

@@ -1,0 +1,91 @@
++++
+title = "Django, pytz, NonExistentTimeError and AmbiguousTimeError"
+date = "2015-03-29T23:02:44Z"
+slug = "django-pytz-nonexistenttimeerror-and-ambiguoustimeerror"
+tags = ["Django", "Python", "PyTZ", "timezones"]
+draft = false
++++
+<p><strong>Brief:</strong> In one of the project I work on we had to convert some old naive datetime objects to timezone aware ones. Converting naive datetime to timezone aware one is usually a straightforward job. In django you even have a nice utility function for this. For example:</p>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">timezone</span>
+
+
+<span class="n">timezone</span><span class="o">.</span><span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">52</span><span class="p">),</span>
+                    <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">))</span>
+<span class="c"># returns datetime.datetime(2012, 3, 25, 3, 52, tzinfo=&lt;DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST&gt;)</span>
+</pre></div>
+
+<p><strong>Problem:</strong> You can use this for quite a long time until one day you end up with something like this:</p>
+<div class="highlight"><pre><span class="n">timezone</span><span class="o">.</span><span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">52</span><span class="p">),</span>
+                    <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">))</span>
+
+<span class="c"># which leads to</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">""</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> 
+  <span class="n">File</span> <span class="s">"/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">358</span><span class="p">,</span> <span class="ow">in</span> <span class="n">make_aware</span>
+    <span class="k">return</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">is_dst</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s">"/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">327</span><span class="p">,</span> <span class="ow">in</span> <span class="n">localize</span>
+    <span class="k">raise</span> <span class="n">NonExistentTimeError</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">pytz</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NonExistentTimeError</span><span class="p">:</span> <span class="mi">2012</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">25</span> <span class="mo">02</span><span class="p">:</span><span class="mi">52</span><span class="p">:</span><span class="mo">00</span>
+</pre></div>
+
+<p>Or this:</p>
+<div class="highlight"><pre>    
+<span class="n">timezone</span><span class="o">.</span><span class="n">make_aware</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">52</span><span class="p">),</span>
+                    <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">))</span>
+
+<span class="c">#throws</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">""</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> 
+  <span class="n">File</span> <span class="s">"/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">358</span><span class="p">,</span> <span class="ow">in</span> <span class="n">make_aware</span>
+    <span class="k">return</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">is_dst</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s">"/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">349</span><span class="p">,</span> <span class="ow">in</span> <span class="n">localize</span>
+    <span class="k">raise</span> <span class="n">AmbiguousTimeError</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">pytz</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">AmbiguousTimeError</span><span class="p">:</span> <span class="mi">2012</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">28</span> <span class="mo">02</span><span class="p">:</span><span class="mi">52</span><span class="p">:</span><span class="mo">00</span>
+</pre></div>
+
+<p><strong>Explanation:</strong> The reason for the first error is that in the real world this datetime does not exists. Due to the DST change on this date the clock jumps from 01:59 standard time to 03:00 DST. Fortunately (or not) pytz is aware of the fact that this time is invalid and will throw the exception above. The second exception is almost the same but it happens when switching from summer to standard time. From 01:59 DST the clock shifts to 01:00 standard time, so we end with a duplicate time.</p>
+<p><strong>Why has this happened(in our case)?</strong> Well we couldn't be sure how exactly this one got into our legacy data but the assumption is that at the moment when the record was saved the server has been in different timezone where this has been a valid time. </p>
+<p><strong>Solution 1:</strong> This fix is quite simple, just add an hour if the exception occurs.</p>
+<div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">date_time</span><span class="p">,</span> <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">))</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">NonExistentTimeError</span><span class="p">,</span> <span class="n">pytz</span><span class="o">.</span><span class="n">AmbiguousTimeError</span><span class="p">):</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">date_time</span><span class="p">)</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+<p><strong>Solution 2:</strong> Instead of calling make_aware call timezone.localize directly.</p>
+<div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">make_aware</span><span class="p">(</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">date_time</span><span class="p">,</span> <span class="n">timezone</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">))</span>
+    <span class="p">)</span>
+<span class="k">except</span> <span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">NonExistentTimeError</span><span class="p">,</span> <span class="n">pytz</span><span class="o">.</span><span class="n">AmbiguousTimeError</span><span class="p">):</span>
+    <span class="n">timezone</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Stockholm'</span><span class="p">)</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">date_time</span><span class="p">),</span> <span class="n">is_dst</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+
+<p>The second solution probably needs some explanation. First lets check what make_aware does. The code bellow is take from Django's <a href="https://github.com/django/django/blob/1.7.7/django/utils/timezone.py#L352" target="_blank">sourcecode</a> as it is in version 1.7.7</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">make_aware</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">timezone</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Makes a naive datetime.datetime in a given time zone aware.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">timezone</span><span class="p">,</span> <span class="s">'localize'</span><span class="p">):</span>
+        <span class="c"># This method is available for pytz time zones.</span>
+        <span class="k">return</span> <span class="n">timezone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">is_dst</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># Check that we won't overwrite the timezone of an aware datetime.</span>
+        <span class="k">if</span> <span class="n">is_aware</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">"make_aware expects a naive datetime, got </span><span class="si">%s</span><span class="s">"</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+        <span class="c"># This may be wrong around DST changes!</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="p">)</span>    
+</pre></div>
+
+<p>To simplify it, what Django does is to use the localize method of the timezone object(if it exists) to convert the datetime. When using pytz this localize method takes two arguments: the datetime value and <strong>is_dst</strong>. The last argument takes three possible values: None, False and True. When using None and the datetime matches the moment of the DST change pytz does not know how to handle the datetime and you get one of the exceptions shown above. False means that it should convert it to standard time and True that it should convert it to summer time.</p>
+<p><strong>Why isn't this fixed in Django?</strong> The simple answer is "because this is how it should work". For a bit longer check the respectful <a href="https://code.djangoproject.com/ticket/22598" target="_blank">ticket</a>.</p>
+<p><strong>Reminder:</strong> Do not forget that the "fix" above does not actually care whether the original datetime is during DST or not. In our case this was not criticla for our app, but in some other cases it might be, so use it carefully.</p>
+<p><strong>Thanks:</strong> Special thanks to Joshua who correctly pointed out in the comments that I have missed the <strong>AmbiguousTimeError</strong> in the original post which made me to look a bit more in the problem, research other solutions and update the article to its current content.</p>

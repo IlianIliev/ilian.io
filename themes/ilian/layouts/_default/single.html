@@ -1,0 +1,31 @@
+{{ define "title" }}{{ .Title }} | {{ .Site.Title }}{{ end }}
+
+{{ define "meta" }}
+<meta property="og:title" content="{{ .Title }} | {{ .Site.Title }}" />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="{{ .Site.BaseURL }}img/logo.png" />
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+{{ end }}
+
+{{ define "main" }}
+<section class="col-md-8">
+    <article>
+        <h1 class="bottom-dotted">{{ .Title }}</h1>
+        <p class="meta gray">
+            Published at {{ .Date.Format "January 2, 2006" }}
+            {{ with .Params.tags }}
+            | Tagged with:
+            {{ range $i, $tag := . }}{{ if $i }}, {{ end }}<a href="{{ "/tags/" | relURL }}{{ $tag | urlize }}/" rel="tag">{{ $tag }}</a>{{ end }}
+            {{ end }}
+        </p>
+        <div class="article-body">
+            {{ .Content }}
+        </div>
+    </article>
+
+    <hr>
+    {{ partial "disqus.html" . }}
+</section>
+
+{{ partial "sidebar.html" . }}
+{{ end }}

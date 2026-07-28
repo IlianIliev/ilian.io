@@ -1,0 +1,31 @@
++++
+title = "Fabric & Django"
+date = "2012-05-28T12:43:01Z"
+slug = "fabric-and-django-how-to-automate-new-project-start"
+tags = ["Development", "Django", "Fabric", "Python"]
+draft = false
++++
+<h2>Or how automate the creation of new projects with simple script</h2>
+<p><strong>Preface:</strong> Do you remember all this tiny little steps that you have to perform every time when you start new project - create virtual environment, install packages, start and setup <a href="https://www.djangoproject.com/" target="_blank">Django</a> project? Kind of annoying repetition, isn't it? How about to automate it a bit.</p>
+<p><strong>Solution:</strong> Recently I started learning <a href="http://docs.fabfile.org/en/1.4.2/index.html" target="_blank">Fabric</a> and thought "What better way to test it in practice than automating a simple, repetitive task?". So, lets mark the tasks that I want the script to perform:</p>
+<ol>
+<li>Create virtual environment with the project name</li>
+<li>Activate the virtual environment</li>
+<li>Download list of packages and install them</li>
+<li>Make 'src' directory where the project source will reside</li>
+<li>Create new Django project in source directory</li>
+<li>Update the settings</li>
+</ol>
+<p>Thanks to the <a href="http://docs.fabfile.org/en/1.4.2/api/core/operations.html?highlight=local#fabric.operations.local" target="_blank">local</a> command the first one was easy. The problem was with the second one. Obviously each local command is run autonomously so I had to find some way have activated virtual environment for each task after this. Fortunately the <a href="http://docs.fabfile.org/en/1.4.2/api/core/context_managers.html?highlight=prefix#fabric.context_managers.prefix" target="_blank">prefix</a> context manager works like a charm. I had some issues making it read and write in the paths I wants and voilà it was working exactly as I want.</p>
+<p>The script is too long to place it here but is publicly available at <a href="https://gist.github.com/2818562" target="_blank" title="Fabric script that eases the creation of new Django Project">https://gist.github.com/2818562</a><br/>
+It is quite simple to use, you only need python, fabric and <a href="http://pypi.python.org/pypi/virtualenv" target="_blank">virtual environment</a>. Then just use the following code.<br/>
+<div class="highlight"><pre><span class="n">fab</span> <span class="n">start_project</span><span class="p">:</span><span class="n">my_mew_project</span>
+</pre></div>
+</p>
+<p><strong>To Do:</strong> Here are few things that can be improved:</p>
+<ul>
+<li>Read the packages from a file</li>
+<li>Update urls.py to enable admin</li>
+<li>Generate Nginx server block file</li>
+</ul>
+<p>So this is my first try with Fabric, I hope that you will like it and find it useful. As always any comments, questions and/or improvement ideas are welcome.</p>

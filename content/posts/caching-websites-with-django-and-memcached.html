@@ -1,0 +1,71 @@
++++
+title = "Caching websites with Django and Memcached..."
+date = "2011-07-12T19:46:12Z"
+slug = "caching-websites-with-django-and-memcached"
+tags = ["cache", "Development", "Django", "Python", "semantic web", "speed", "Technologies", "Web"]
+draft = false
++++
+<h2>... memcached installation, django configuration and how to use it for your website</h2>
+<p>After <a href="http://ilian.i-n-i.org/caching-web-sites-and-web-applications/" title="Caching web sites and web applications - Why, Where, What and How of caching web sites">Caching web sites and web applications</a> and <a href="http://ilian.i-n-i.org/when-to-use-caching-for-web-sites/" title="When to use caching for web sites - five major question to ask yourself before using cache">When to use caching for web sites</a> its time for a little sample. This sample shows the usage of Memcached for server-side application cache. The installation part is taken from my Ubuntu so it may differ depending from your OS/distribution.</p>
+<p><strong>What is Memcached:</strong> <a href="http://memcached.org/">Memcached</a> is a tool that allows you to store key-value pairs in you memory. The keys are limited to 250 Bytes and for better performance the value size is limited to 1MB(<a href="http://code.google.com/p/memcached/wiki/FAQ#Why_are_items_limited_to_1_megabyte_in_size?">more details</a>) but this size is fair enough for web usage.</p>
+<p><strong>Memcached installation:</strong><br/>
+<div class="highlight"><pre><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">memcached</span>
+<span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">memcache</span>
+</pre></div>
+
+The first line installs Memcached and the second one install Python API for communication between your application and Memcached daemon. After this the Memcached daemon is up and running. With default configuration it runs on port 11211 on localhost(127.0.0.1). If you want to modify this the configuration file(in my case) is situated in /etc/memcached.conf
+
+<strong>Django configuration:</strong> This one depends from the Django version that you use. For 1.2.5 and prior the next code should by added in your settings file(settings.py):
+<div class="highlight"><pre><span class="n">CACHE_BACKEND</span> <span class="o">=</span> <span class="s">'memcached://127.0.0.1:11211/'</span>
+</pre></div>
+
+For 1.3 and development version add:
+<div class="highlight"><pre><span class="n">CACHES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'default'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">'BACKEND'</span><span class="p">:</span> <span class="s">'django.core.cache.backends.memcached.MemcachedCache'</span><span class="p">,</span>
+        <span class="s">'LOCATION'</span><span class="p">:</span> <span class="s">'127.0.0.1:11211'</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+In both cases if you use different port and/or IP you have to replace them above.
+More info about cache backend configuration you can find in <a href="https://docs.djangoproject.com/en/1.3/topics/cache/#memcached">Django documentation docs</a>.
+
+So now you have Memcached running and Django configured. If you have doubts about is this suitable/usable in you case take a look at the posts mentioned above or just add comment with your case and I will be happy to give you an advice. Now it is time to start using it.
+
+<strong>Cache usage(part I) - how to cache on Python level:</strong> If you have some heavy calculations in your view you can cache the result from this and use the calculated one to lower the load. Example:
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.core.cache</span> <span class="kn">import</span> <span class="n">cache</span>
+
+<span class="k">def</span> <span class="nf">heavy_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">cache_key</span> <span class="o">=</span> <span class="s">'my_heavy_view_cache_key'</span>
+    <span class="n">cache_time</span> <span class="o">=</span> <span class="mi">1800</span> <span class="c"># time to live in seconds</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="c"># some calculations here</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">cache_time</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+The process is simple, you ask the cache for a value corresponding to a given key(line 4). If the result is None you execute the code that generates it(line 8 ) and store it in the cache(line 9).
+My advice is to declare the key and time as variables cause this will ease their future changes.
+
+<strong>Cache usage(part II) - how to cache on template level:</strong> This is suitable for the cases when you have some heavy processing in the template(as regroup) or you want to cache only part of the template(as latest news section). Example:
+
+<div class="highlight"><pre><span class="p">{</span><span class="o">%</span> <span class="n">load</span> <span class="n">cache</span> <span class="o">%</span><span class="p">}</span>
+ <span class="o">...</span> <span class="n">non</span> <span class="n">cached</span> <span class="n">content</span> <span class="n">here</span> <span class="o">...</span>
+<span class="p">{</span><span class="o">%</span> <span class="n">cache</span> <span class="mi">1800</span> <span class="n">latest_news</span> <span class="o">%</span><span class="p">}</span>
+    <span class="o">...</span> <span class="n">here</span> <span class="n">are</span> <span class="n">latest</span> <span class="n">news</span> <span class="o">-</span> <span class="n">cached</span> <span class="o">...</span>
+<span class="p">{</span><span class="o">%</span> <span class="n">endcache</span> <span class="o">%</span><span class="p">}</span>
+</pre></div>
+
+The basic usage usage is {% cache time_in_seconds key %} ... {% endcache %}
+
+You can also cache code fragments based on dynamic properties, for example - current user recent conversations, just pass a 3rd param the uniquely identifies the code to be cached.
+<div class="highlight"><pre><span class="p">{</span><span class="o">%</span> <span class="n">load</span> <span class="n">cache</span> <span class="o">%</span><span class="p">}</span>
+<span class="p">{</span><span class="o">%</span> <span class="n">cache</span> <span class="mi">300</span> <span class="n">recent_conversations</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span> <span class="o">%</span><span class="p">}</span>
+    <span class="o">...</span> <span class="n">current</span> <span class="n">user</span> <span class="n">recent</span> <span class="n">conversations</span> <span class="o">-</span> <span class="n">cached</span> <span class="o">...</span>
+<span class="p">{</span><span class="o">%</span> <span class="n">endcache</span> <span class="o">%</span><span class="p">}</span>
+</pre></div>
+</p>
+<p><strong>Final words:</strong> as you see from the examples above using Django and Memcached is really easy. Using it correctly will speed up your website and respectively improve your user experience(UX) and SEO. Using it wrong will provide negative results. Just take a moment and think what can be cached, how long can it be cached and is there a reason to be cached. Try to avoid double caching - there is no need to use caching in templates and then cache the rendered template in the view too.</p>

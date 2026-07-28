@@ -1,0 +1,55 @@
++++
+title = "Django project file structure"
+date = "2012-09-24T20:33:00Z"
+slug = "django-project-file-structure"
+tags = ["Development", "Django", "Python"]
+draft = false
++++
+<p>As I promised in <a href="http://ilian.i-n-i.org/automated-deployment-with-ubuntu-fabric-and-django/">Automated deployment with Ubuntu, Fabric and Django</a> I will use this post to explain the file structure that I use for my Django projects and what I benefit from it. So here is my project directory tree.</p>
+<h2>The structure</h2>
+<pre>
+~/workspace/&amp;lt;project_name&amp;gt;/
+|-- bin
+|-- include
+|-- lib
+|-- local
+|-- src
+   |-- .git
+   |-- .gitignore
+   |-- required_packages.txt
+   |-- media
+   |-- static
+   |-- &amp;lt;project_name&amp;gt;
+   |   |-- &amp;lt;project_name&amp;gt;
+   |   |   |-- __init__.py
+   |   |   |-- settings
+   |   |   |   |-- __init__.py
+   |   |   |   |-- &amp;lt;environment_type&amp;gt;.py
+   |   |   |   |-- local.py
+   |   |   |-- templates
+   |   |   |-- urls.py
+   |   |   |-- views.py
+   |   |-- manage.py
+   |   |-- wsgi.py
+   |-- &amp;lt;project_name&amp;gt;.development.nginx.local.conf
+   |-- &amp;lt;project_name&amp;gt;.&amp;lt; environment_type&amp;gt;.nginx.uwsgi.conf
+   |-- &amp;lt;project_name&amp;gt;.&amp;lt; environment_type&amp;gt;.uwsgi.conf
+</pre>
+<h2>Explanation</h2>
+<p>At the top I have a directory named as the project and virtual environment inside of it. The benefit from it is complete isolation of the project from the surrounding projects and python packages installed at OS level and ability to install packages without administrator permissions. It also provides an easy way to transfer the project from one system to another using a requirements file.<br/>
+The <strong>src</strong> folder is where I keep everything that is going to enter the version control project source, requirements files, web server configuration etc.<br/>
+My default <strong>.gitignore</strong> is made to skip the pyc-files, the PyDev files and everything in the static and media directories.<br/>
+The <strong>media</strong> directory is where the MEDIA_ROOT settings point to, respectively <strong>static</strong> is for the STATIC_ROOT.<br/>
+All required packages with their version are placed in <strong>required_packages.txt</strong> so we can install/update them with a single command in the virtual environment.<br/>
+In a directory with the name of the project is where the python code resides. Inside it the project structure partly follows the new project layout introduced in <a href="https://docs.djangoproject.com/en/dev/releases/1.4/#updated-default-project-layout-and-manage-py">Django 1.4</a>.<br/>
+The big difference here is the settings part. It is moved as a separate module where all common/general settings are place in <atrong>__init__.py</atrong></p>. We have one file for each possible environment(development, staging, production) with the environment specific settings like DEBUG and TEMPLATE_DEBUG. In <strong>local.py</strong> are placed the settings specific for the machine where the project is running. This file should not go into the repository as this is where the access database password and API keys should reside.<br/>
+I having one local Nginx configuration file because I use the webserver to serve the static files when working locally this is the <strong>&lt;project_name&gt;.development.nginx.local.conf</strong>.<br/>
+For each environment there is also a couple of configuration files - one for the web server(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.nginx.uwsgi.conf</strong>) and one for the uwsgi(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.uwsgi.conf</strong>). I make symbolic links pointing to these files so any changes made are automatically pushed/pulled via version control, I only have to reload the configuration. There is no option to change something in the configuration at one station and to forget to transfer it to the rest.
+<h3>Benefits</h3>
+<ul>
+<li>Complete isolation from other projects using virtual environment</li>
+<li>Easy to transfer and update packages on other machines thanks to the pip requirements file</li>
+<li>Media/static files outside the source directory for higher security</li>
+<li>Web server/uWSGI configuration as part of the repository for easier and error proof synchronization</li>
+</ul>
+<p>Probably it have some downside(I can not think any of these now but you never know) so if you think that this can be improved feel free to share your thoughts. Also if there is anything not clear enough, just ask me, I will be happy to clear it.</p>

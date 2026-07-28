@@ -1,0 +1,67 @@
+<header class="navbar navbar-default">
+    <div class="container">
+        <div class="col-md-8">
+            <div class="navbar-header">
+                <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="/" class="navbar-brand logo" title="Ilian Iliev">
+                    <img src="/img/logo.png" alt="Ilian Iliev"/>
+                </a>
+            </div>
+            <nav class="collapse navbar-collapse bs-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li{{ if .IsHome }} class="active"{{ end }}>
+                        <a href="/">Blog</a>
+                    </li>
+                    <li{{ if eq .RelPermalink "/about-me/" }} class="active"{{ end }}>
+                        <a href="/about-me/">About me</a>
+                    </li>
+                    <li{{ if eq .RelPermalink "/portfolio/" }} class="active"{{ end }}>
+                        <a href="/portfolio/">Portfolio</a>
+                    </li>
+                    <li class="dropdown hidden-lg">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Social <span class="caret"></span></a>
+                        <ul class="social-mobile-menu dropdown-menu" role="menu">
+                            <li>
+                                <a class="socicon" href="/index.xml" title="RSS" target="_blank">
+                                    <span class="socicon-rss"></span> RSS
+                                </a>
+                            </li>
+                            <li>
+                                <a class="socicon" href="{{ .Site.Params.githubURL }}" title="Ilian Iliev's GitHub" target="_blank">
+                                    <span class="socicon-github"></span> GitHub
+                                </a>
+                            </li>
+                            <li>
+                                <a class="socicon" href="{{ .Site.Params.linkedinURL }}" title="Ilian Iliev at LinkedIn" target="_blank">
+                                    <span class="socicon-linkedin"></span> LinkedIn
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <ul class="nav social col-md-4 visible-lg">
+            <li>
+                <a class="socicon" href="/index.xml" title="RSS" target="_blank">
+                    <span class="socicon-rss"></span>
+                </a>
+            </li>
+            <li>
+                <a class="socicon" href="{{ .Site.Params.githubURL }}" title="Ilian Iliev's GitHub" target="_blank">
+                    <span class="socicon-github"></span>
+                </a>
+            </li>
+            <li>
+                <a class="socicon" href="{{ .Site.Params.linkedinURL }}" title="Ilian Iliev at LinkedIn" target="_blank">
+                    <span class="socicon-linkedin"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</header>

@@ -1,0 +1,40 @@
++++
+title = "Django forms ChoiceField and custom HTML output..."
+date = "2011-01-06T18:26:03Z"
+slug = "django-forms-choicefield-and-custom-html-output"
+tags = ["ChoiceField", "Development", "django-forms", "Django", "template tags"]
+draft = false
++++
+<h2>... or what to do in case that you need a special design for your choice fields</h2>
+<p><strong>The problem:</strong> Few posts ago I talked(wrote) about <a href="http://ilian.i-n-i.org/django-forms-choicefield-with-dynamic-values/" title="Django forms ChoiceField and with dynamic values">Django forms ChoiceField and with dynamic values</a> and now it is time to take a look at the front end and how we display these values to the user. I will use the code from that post:<br/>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="n">my_choice_field</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">MY_CHOICES</span><span class="p">)</span>
+</pre></div>
+
+
+By default <a href="http://www.djangoproject.com/" title="Django">Django</a> provide us with a simple drop-down list as visual representation of the choice field. Just create and instance of the form in your view, pass it in the context:
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">my_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">MyForm</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render_response</span><span class="p">(</span><span class="s">'template.html'</span><span class="p">,{</span><span class="s">'form'</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+</pre></div>
+
+and then display it in the template using {{form.my_choice_field}}.
+
+<strong>Speciality:</strong>  For most cases this drop-down works just fine but sometimes this is not enough. Lets say that instead of drop-down list we need a radio buttons. There are two ways to achieve this - using a custom widget or playing with the template tags and the ChoiceField object. The first solutions is more suitable if you have a repeatable interface for several fields. In my case this was field specific so I chose the second one as faster for implementation.
+
+<strong>Solution:</strong> You can access the field object and its choices calling the field respectively field.choices properties of the form element in the template. Here is an example
+<div class="highlight"><pre><span class="o">&lt;</span><span class="n">ul</span><span class="o">&gt;</span>
+<span class="p">{</span><span class="o">%</span> <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">form</span><span class="o">.</span><span class="n">my_choice_field</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">choices</span> <span class="o">%</span><span class="p">}</span>
+  <span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nb">input</span> <span class="nb">type</span><span class="o">=</span><span class="s">"radio"</span> <span class="n">name</span><span class="o">=</span><span class="s">"my_choice_field"</span> <span class="n">value</span><span class="o">=</span><span class="s">"{{choice.0}}"</span>
+      <span class="p">{</span><span class="o">%</span> <span class="n">ifequal</span> <span class="n">form</span><span class="o">.</span><span class="n">my_choice_field</span><span class="o">.</span><span class="n">data</span> <span class="n">choice</span><span class="o">.</span><span class="mi">0</span> <span class="o">%</span><span class="p">}</span> 
+         <span class="n">checked</span><span class="o">=</span><span class="s">"checked"</span>
+      <span class="p">{</span><span class="o">%</span> <span class="n">endifequal</span> <span class="o">%</span><span class="p">}</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="n">label</span> <span class="k">for</span><span class="o">=</span><span class="s">""</span><span class="o">&gt;</span><span class="p">{{</span><span class="n">choice</span><span class="o">.</span><span class="mi">1</span><span class="p">}}</span><span class="o">&lt;/</span><span class="n">label</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+<span class="p">{</span><span class="o">%</span> <span class="n">endfor</span> <span class="o">%</span><span class="p">}</span>
+<span class="o">&lt;/</span><span class="n">ul</span><span class="o">&gt;</span>
+</pre></div>
+</p>
+<p>This allows you to specify custom styles/HTML for every element and also to distinct first and last elements using forloop.first and forloop.last - for more information you can check Django documentation about the <a href="http://docs.djangoproject.com/en/dev/ref/templates/builtins/?from=olddocs#for" title="Django templates for tag">for template tag</a></p>
+<p><strong>Final words:</strong> I did not have the chance to measure the speed difference between these two methods I mentions but I intend to post a also an example of the first one(using custom widget) and a "benchmark" between them both. If someone has already done this please post the results and your opinion about this.</p>

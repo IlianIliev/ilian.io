@@ -1,0 +1,58 @@
++++
+title = "Language redirects for multilingual sites with Django CMS ..."
+date = "2011-09-11T14:15:13Z"
+slug = "language-redirects-for-multilingual-sites-with-django-cms"
+tags = ["Development", "django-cms", "Django CMS", "django middleware", "Django", "SEO", "status codes", "web", "web development"]
+draft = false
++++
+<p>... or how to avoid duplicate content by keeping the current language in the URL</p>
+<p><strong>Preface:</strong> Earlier this year I posted about <a href="http://ilian.i-n-i.org/django-cms-2-2-features-that-i-want-to-see/" title="Django CMS 2.2 features that I want to see">Django CMS 2.2 features that I want to see</a> and one of the things mentioned there was that once you have chosen the language of the site there is no matter whether you will open "/my_page/" or "/en/my_page/" - it just shows the same content. The problem is that this can be considered both duplicate and inconsistent content.<br/>
+Duplicate because you see the same content with and without the language code in the URL and inconsistent because for the same URL you can get different language versions i.e. different content.</p>
+<p><strong>Solution:</strong> This can be easy fixed by using a custom middleware that will redirect the URL that does not contain language code. In my case the middleware is stored in "middleware/URLMiddlewares.py"(the path is relative to my project root directory) and contains the following code.<br/>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">cms.middleware.multilingual</span> <span class="kn">import</span> <span class="n">MultilingualURLMiddleware</span> 
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">translation</span>
+
+<span class="k">class</span> <span class="nc">CustomMultilingualURLMiddleware</span><span class="p">(</span><span class="n">MultilingualURLMiddleware</span><span class="p">):</span> 
+    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">lang_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">lang_path</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">URLS_WITHOUT_LANGUAGE_REDIRECT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">language</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language_from_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> 
+        <span class="n">translation</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">language</span><span class="p">)</span> 
+        <span class="n">request</span><span class="o">.</span><span class="n">LANGUAGE_CODE</span> <span class="o">=</span> <span class="n">language</span>
+        <span class="k">if</span> <span class="n">lang_path</span> <span class="o">==</span> <span class="s">''</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">'/</span><span class="si">%s</span><span class="s">/'</span> <span class="o">%</span> <span class="n">language</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">([</span><span class="n">z</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">LANGUAGES</span> <span class="k">if</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">lang_path</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s">'/</span><span class="si">%s%s</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">language</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+
+Now a little explanation on what happens in this middleware.
+
+<em>Note: If you are not familiar with how middlewares work go and check <a href="https://docs.djangoproject.com/en/1.3/topics/http/middleware/" title="Django Middlewares">Django Middlewares</a>.</em>
+
+Back to the code. First we split the URL by '/' and take the second element(this is where our language code should be) and store in lang_path(8).
+<em>URLS_WITHOUT_LANGUAGE_REDIRECT</em> is just a list of URLs that should not be redirected, if lang_path matches any of the URLs we return None i.e. the request is not changed(9-10). This is used for sections of the site that are not language specific for example media stuff.
+Then we get language based on the request(11-13).
+If <em>lang_path</em> is empty then the user has requested the home page and we redirect him to the correct language version of it(14-15).
+If <em>lang_path</em> does not match any of the declared languages this mean that the language code is missing from the URL and the user is redirected to the correct language version of this page(16-17).
+
+To make the middleware above to work you have to update your settings.py.
+First add the middleware to your <em>MIDDLEWARE_CLASSES</em> - in my case the path is <em>'middleware.URLMiddlewares.CustomMultilingualURLMiddleware'</em>.
+
+Second add URLS_WITHOUT_LANGUAGE_REDIRECT list and place there the URLs that should not be redirected, example:
+<div class="highlight"><pre><span class="n">URLS_WITHOUT_LANGUAGE_REDIRECT</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'css'</span><span class="p">,</span>
+    <span class="s">'js'</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+<strong>Specialties: </strong> If the language code is not in the URL and there is no language cookie set your browser settings will be used to determine your preferred language. Unfortunately most of the users do not know about this option and it often stays set to its default value. If you want this setting to be ignored just add the following code after line 10 in the middleware above:
+<div class="highlight"><pre><span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">'HTTP_ACCEPT_LANGUAGE'</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="p">[</span><span class="s">'HTTP_ACCEPT_LANGUAGE'</span><span class="p">]</span>
+</pre></div>
+<br/>
+It removed the HTTP_ACCEPT_LANGUAGE header sent from the browser and Django uses the language set in its settings ad default.</p>
+<p>URLS_WITHOUT_LANGUAGE_REDIRECT is extremely useful if you are developing using the built in dev server and serve the media files trough it. But once you put your website on production I strongly encourage you to serve these files directly by the web server instead of using Django static serve.</p>
+<p><strong>Final words:</strong> In Django 1.4 there will be big changes about multilingual URLs but till then you can use this code will improve your website SEO. Any ideas of improvement will be appreciated.</p>

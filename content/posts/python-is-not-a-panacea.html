@@ -1,0 +1,28 @@
++++
+title = "Python is not a Panacea ..."
+date = "2012-06-11T18:29:18Z"
+slug = "python-is-not-a-panacea"
+tags = ["Development", "Programming", "Python", "Technologies", "Web"]
+draft = false
++++
+<h2>... neither is any other language or framework</h2>
+<p>This post was inspired by the serial discussion on the topic "Python vs other language"(in the specific case the other one was PHP, and the question was asked in a Python group so you may guess whether there are any answers in favor of PHP). It is very simple, I believe that every Python developer will tell you that Python is the greatest language ever build, how easy is to learn it, how readable and flexible it is, how much fun it is to work with it and so on. They will tell you that you can do everything with it: web and desktop development, testing, automation, scientific simulations etc. But what most of them will forgot to tell you is that it is not a <a href="http://en.wikipedia.org/wiki/Panacea_(medicine)">Panacea</a>.</p>
+<p>In the matter of fact you can also build "ugly" and unstable applications in Python too. Most problems come not from the language or framework used, but from bad coding practices and bad understanding of the environment. Python will force you to write readable code but it wont solve all your problems. It is hard to make a complete list of what exactly you must know before starting to build application, big part of the knowledge comes with the experience but here is a small list of some essential things.</p>
+<ul>
+<li>Write clean with meaningful variable/class names.</li>
+<li>Exceptions are raised, learn how to handle them.</li>
+<li>Learn <a href="http://en.wikipedia.org/wiki/Object-oriented_programming">OOP(Object Oriented Programming)</a></li>
+<li>Use functions to granulate functionality and make code reusable</li>
+<li><a don't_repeat_yourself"="" en.wikipedia.org="" href"http:="" wiki="">DRY(Don't Repeat Youtself)</a></li>
+<li>If you are going do develop web application learn about the Client-Server relation</li>
+<li>Use "layers" to seprate the different parts of your application - database methods, business logic, output etc. <a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a> is a nice example of such separation</li>
+<li>Never store passwords in plain text. Even hashed password are not completely safe, check what <a href="http://en.wikipedia.org/wiki/Rainbow_table">Rainbow Tables</a> are.</li>
+<li>Comment/Document your code</li>
+<li>Write unit test and learn TDD.</li>
+<li>Learn how to use version control.</li>
+<li>There is a client waiting on the other side - don't make him wait too long.</li>
+<li>Learn functional programming.</li>
+</ul>
+<p>I hope the above does not sounds as an anti Python talk. This is not its idea. Firstly because there are things that are more important than the language itself(the list above) and secondly because... Python is awesome )))<br/>
+There are languages that will help you learn the things above faster, Python is one of them - built in documentation features, easy to learn and try and extremely useful. My advice is not to start with PHP as your first programming language it will make you think that mixing variables with different types is OK. It may be fast for some things but most of the times it is not safe so you should better start with more type strict language where you can learn casting, escaping user output etc.</p>
+<p>Probably I have missed a few(or more) pointa but I hope I've covered the basics. If you think that anything important is missing, just add it in the comments and I will update the post.</p>

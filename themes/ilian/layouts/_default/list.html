@@ -1,0 +1,43 @@
+{{ define "title" }}{{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="col-md-8">
+    {{ range .Paginator.Pages }}
+    <article>
+        <h1 class="bottom-dotted">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h1>
+        <p class="meta gray">
+            Published at {{ .Date.Format "January 2, 2006" }}
+            {{ with .Params.tags }}
+            | Tagged with:
+            {{ range $i, $tag := . }}{{ if $i }}, {{ end }}<a href="{{ "/tags/" | relURL }}{{ $tag | urlize }}/" rel="tag">{{ $tag }}</a>{{ end }}
+            {{ end }}
+        </p>
+        <div class="article-body">
+            {{ .Content }}
+        </div>
+    </article>
+    {{ end }}
+
+    {{ $paginator := .Paginator }}
+    {{ if gt $paginator.TotalPages 1 }}
+    <nav>
+        <ul class="pager">
+            {{ if $paginator.HasPrev }}
+            <li class="previous">
+                <a href="{{ $paginator.Prev.URL }}">&larr; Newer</a>
+            </li>
+            {{ end }}
+            {{ if $paginator.HasNext }}
+            <li class="next">
+                <a href="{{ $paginator.Next.URL }}">Older &rarr;</a>
+            </li>
+            {{ end }}
+        </ul>
+    </nav>
+    {{ end }}
+</section>
+
+{{ partial "sidebar.html" . }}
+{{ end }}

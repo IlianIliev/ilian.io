@@ -1,0 +1,29 @@
++++
+title = "When to use caching for web sites ..."
+date = "2011-07-12T05:25:38Z"
+slug = "when-to-use-caching-for-web-sites"
+tags = ["cache", "Development", "heavy load", "memcached", "optimisation", "speed", "web", "Web"]
+draft = false
++++
+<h2>... five major question to ask yourself before using cache</h2>
+<p></p>
+<p>After we learned about <a href="http://ilian.i-n-i.org/caching-web-sites-and-web-applications/">Why, Where, What and How of caching web sites</a> now it is time to see when to use it.<br/>
+The application cache is mainly used for speeding up and/or decreasing the load of frequently executed and(but not necessary) heavy resource using methods. So the first question is:</p>
+<h3>1) If you have method the consumes lots of CPU time and/or memory can it be optimised?</h3>
+<p>If you can optimize your code and make the method run faster and consume less resource than do this first and then reconsider whether you still need to cache it.. </p>
+<h3>2) Will caching save you load/wait?</h3>
+<p>Have in mind that accessing cache has its own load. So caching the result of relatively light operations is pointless. Try to find where your biggest load/wait came from and use cache there.</p>
+<h3>3) For how long the cache should be valid?</h3>
+<p>This depend from how often the data is changed. We can split it in 3 major cases.</p>
+<p><strong>Case 1:</strong> The data changes on equal amounts of time, for example it is updated by cron. In this case you can set the expire time equal to the time interval in which the cron is runned. Example - you are reading a feed with the news from the last hour.</p>
+<p><strong>Case 2:</strong> The data is changed on random intervals of time - but not real time(i.e. from minutes to hours). In this case you should choose an average amount of time for which you think the data is persistent or even if it is changed you can serve the outdated one to the client. In this case the best way is to be able to invalidate cache when data changes. This is usable if the data is from the same type, for example - news list. Just add a line that invalidates cache on every news affecting operation(add/edit/delete). If you have composite data, for example mix of news, weather cast and currency rates for the day you'll just have to wait the cache to expire by it self.</p>
+<p><strong>Case 3:</strong> The data is updated real-time(every second, sometimes more than once in a second). If you are watching/playing on the market you really need real-time info for the current rates. But if don`t need the real-time date, for example you are displaying just informative graph with the daily changes you can cache and update it rarely(for example on every few minutes) then it changes.</p>
+<p>So you have determined how long your cache should stay valid and the next question is:</p>
+<h3>4) Will the data be accessed more than once for the cache period?</h3>
+<p>If not then don't cache it or reconsider to increase cache validity time(question 2).</p>
+<h3>5) How big is the data to be cached?</h3>
+<p>Memcached has 1MB limit per cached item. For web(no matter is it site or application) this limit is fair enough for most/all of the cases. If you plan to store something bigger thing again and be sure you are not doing something wrong. If you really need to cache bigger amount of data consider to use another cache storage - database or file system.</p>
+<p>If you are an advanced developer you will subconsciously know whether to use cache or not. But this questions may be really helpful if you are a novice.<br/>
+I am open to hear what you ask yourself before using cache.</p>
+<h3>Update:</h3>
+<p> One more case when it is mandatory to use caching(if you can) is when you have frequent calls to an outer API. For example <a href="http://ilian.i-n-i.org/retrieving-google-analytics-data-with-python/" title="Retrieving Google Analytic Data">Retrieving Google Analytics Data</a>.</p>

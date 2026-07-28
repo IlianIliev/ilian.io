@@ -1,0 +1,25 @@
+{{ define "title" }}Tags | {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="col-md-8">
+    <h1 class="bottom-dotted">Tags</h1>
+    <ul class="tag-cloud">
+        {{ range .Data.Terms.Alphabetical }}
+        {{ $count := .Count }}
+        {{ $size := 1 }}
+        {{ if ge $count 10 }}{{ $size = 8 }}
+        {{ else if ge $count 7 }}{{ $size = 6 }}
+        {{ else if ge $count 5 }}{{ $size = 5 }}
+        {{ else if ge $count 4 }}{{ $size = 4 }}
+        {{ else if ge $count 3 }}{{ $size = 3 }}
+        {{ else if ge $count 2 }}{{ $size = 2 }}
+        {{ end }}
+        <li class="size{{ $size }}">
+            <a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+        </li>
+        {{ end }}
+    </ul>
+</section>
+
+{{ partial "sidebar.html" . }}
+{{ end }}

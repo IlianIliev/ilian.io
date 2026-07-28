@@ -1,0 +1,47 @@
++++
+title = "Faking attributes in Python classes..."
+date = "2012-01-30T08:00:18Z"
+slug = "faking-attributes-in-python-classes"
+tags = ["__getattr__", "Development", "Python"]
+draft = false
++++
+<h2>... or how to imitate dynamic properties in a class object</h2>
+<p><strong>Preface:</strong> When you have connections between your application and other systems frequently the data is not in the most useful form for your needs. If you have an API it is awesome but sometimes it just does not act the way you want and your code quickly becomes a series of repeating API calls like api.get_product_property(product_id, property).<br/>
+Of course it will be easier if you can use objects to represent the data in you code so you can create something like a proxy class to this API:<br/>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Product</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">product_id</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">api_obj</span><span class="o">.</span><span class="n">get_product_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">'name'</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">api_obj</span><span class="o">.</span><span class="n">get_product_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">'price'</span><span class="p">)</span>
+
+<span class="c">#usage</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span><span class="n">product_id</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">product</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+
+
+In my opinion it is cleaner, more pretty and more useful than the direct API calls. But still there is something not quite right.
+
+<strong>Problem:</strong> Your model have not two but twenty properties. Defining 20 method makes the code look not that good. Not to mention that amending the code every time when you need a new property is quite boring. So is there a better way?
+As I mention at the end of <a href="http://ilian.i-n-i.org/connecting-django-models-with-outer-applications/">Connecting Django Models with outer applications</a> if you have a class that plays the role of a proxy to another API or other data it may be easier to overwrite the __getattr__ method.
+
+<strong>Solution:</strong>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Product</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">product_id</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">api_obj</span><span class="o">.</span><span class="n">get_product_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+<span class="c">#usage</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span><span class="n">product_id</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">product</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</p>
+<p>Now you can directly use the product properties as attribute names of the Product class. Depending from the way that the API works it would be good to raise AttributeError if there is no such property for the product.</p>
