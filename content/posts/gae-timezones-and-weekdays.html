@@ -15,14 +15,12 @@ draft = false
 <p>So you can not be sure which server is currently responsible for your app. Also you have a DST(daylight saving time) that also must be included in calculation. Fortunately you can use UTC time and<br/>
 <a href="http://code.google.com/p/gae-pytz/" id="g80m" title="PyTZ for Google App Engine">PyTZ for GAE</a>.</p>
 <p><strong>Solution</strong>:<br/>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">pytz</span> <span class="kn">import</span> <span class="n">timezone</span>
-<span class="kn">import</span> <span class="nn">pytz</span>
-<span class="n">bg_zone</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="s">'Europe/Sofia'</span><span class="p">)</span>
-<span class="n">bg_zone_time</span> <span class="o">=</span> <span class="n">bg_zone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
-<span class="n">day_of_week</span> <span class="o">=</span> <span class="n">bg_zone_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%w"</span><span class="p">)</span>
-</pre></div>
-</p>
+<pre><code class="language-python">from datetime import datetime, timedelta
+from pytz import timezone
+import pytz
+bg_zone = timezone('Europe/Sofia')
+bg_zone_time = bg_zone.localize(datetime.utcnow())
+day_of_week = bg_zone_time.strftime("%w")</code></pre></p>
 <p>
 <strong>Explanation</strong>:<br/>
 #5) create timezone object corresponding to your timezone(in my case this is Europe/Sofia)<br/>

@@ -5,13 +5,11 @@ slug = "extending-django-cms-page-model-part-iii"
 tags = ["Development", "django-cms", "Django CMS", "Django"]
 draft = false
 +++
-<h2>... or the drawback of <a href="/extending-django-cms-page-model-part-ii/" title="Extending Django CMS Page model – part II">Extending Django CMS Page model – part II</a></h2>
+<h2>... or the drawback of <a href="http://ilian.i-n-i.org/extending-django-cms-page-model-part-ii/" title="Extending Django CMS Page model – part II">Extending Django CMS Page model – part II</a></h2>
 <p>First of all please accept my apologies that I couldn't warn you for this drawback earlier but I was really busy in the last few weeks so let's skip directly to the problem.<br/>
-If you remember in <a href="/extending-django-cms-page-model-part-ii/" title="Extending Django CMS Page model – part II">Extending Django CMS Page model – part II</a> we added a method to the NavigationNode class that return an instance of the corresponding Page object. If we use it in the way show here:<br/>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">menus.base</span> <span class="kn">import</span> <span class="n">NavigationNode</span>
-<span class="n">NavigationNode</span><span class="o">.</span><span class="n">page_instance</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">Page</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  
-</pre></div>
-</p>
+If you remember in <a href="http://ilian.i-n-i.org/extending-django-cms-page-model-part-ii/" title="Extending Django CMS Page model – part II">Extending Django CMS Page model – part II</a> we added a method to the NavigationNode class that return an instance of the corresponding Page object. If we use it in the way show here:<br/>
+<pre><code class="language-python">from menus.base import NavigationNode
+NavigationNode.page_instance = lambda u: Page.objects.filter(pk = u.id)[0]</code></pre></p>
 <p>The lambda function is executed every time when page_instance is called so this definetly increases the number of SQL queries made(+1 for every call of page_instance). Although this query is done using primary key and it is really fast this can bring you troubles. Especially if your hosting provider give you a limit of queries per time.<br/>
 The good point is that it is not so big problem if you do it once or twice per page and it can be really useful. It all depends from how you use it. Also if you cache the output HTML you will skip the database overhead(but you have to be careful and make a mechanism that will invalidate the cache after page modifications)</p>
 <p>(Almost) everything has its strong and weak sides, but using it carefully may bring you what you want. I really hope that someone will find this useful. If you do or you have found another weak/strong side do not hesitate to share your thoughts.</p>

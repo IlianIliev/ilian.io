@@ -11,7 +11,7 @@ draft = false
 [sourcecode type="javascript"]
 $('#my_element').html(data)
 
-</p>
+
 
 Obviously there was something wrong during the execution of the html() method so I started exploring the results from the jQuery selectors. 
 [sourcecode type="javascript"]
@@ -19,7 +19,7 @@ alert($('container')) // result: [object Object]
 alert($('container').html) // result: function(a){...}
 alert($('container').html()) // result: blank (empty string)
 
-
+</p>
 <p>I was getting close. The only thing left was to find why the html() method was returning an empty string when I was sure that there was something inside this element(I ran a quick check in FireFox) but I was stuck again.</p>
 <p><strong>Investigation:</strong> After a few minutes walking in the room later an old issue came to my mind. I ran into it while I was working on a social network project last year. Javascript/jQuery(I didn`t find which one or both) used to act strange when loading invalid HTML with AJAX inside a page under IE.<br/>
 "Ok, probably a badly closed tag or similar or other fix in a second thing" was my first thought but... unfortunately it turned to be more complex.</p>

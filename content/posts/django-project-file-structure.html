@@ -5,7 +5,7 @@ slug = "django-project-file-structure"
 tags = ["Development", "Django", "Python"]
 draft = false
 +++
-<p>As I promised in <a href="/automated-deployment-with-ubuntu-fabric-and-django/">Automated deployment with Ubuntu, Fabric and Django</a> I will use this post to explain the file structure that I use for my Django projects and what I benefit from it. So here is my project directory tree.</p>
+<p>As I promised in <a href="http://ilian.i-n-i.org/automated-deployment-with-ubuntu-fabric-and-django/">Automated deployment with Ubuntu, Fabric and Django</a> I will use this post to explain the file structure that I use for my Django projects and what I benefit from it. So here is my project directory tree.</p>
 <h2>The structure</h2>
 <pre>
 ~/workspace/&amp;lt;project_name&amp;gt;/
@@ -42,9 +42,9 @@ My default <strong>.gitignore</strong> is made to skip the pyc-files, the PyDev 
 The <strong>media</strong> directory is where the MEDIA_ROOT settings point to, respectively <strong>static</strong> is for the STATIC_ROOT.<br/>
 All required packages with their version are placed in <strong>required_packages.txt</strong> so we can install/update them with a single command in the virtual environment.<br/>
 In a directory with the name of the project is where the python code resides. Inside it the project structure partly follows the new project layout introduced in <a href="https://docs.djangoproject.com/en/dev/releases/1.4/#updated-default-project-layout-and-manage-py">Django 1.4</a>.<br/>
-The big difference here is the settings part. It is moved as a separate module where all common/general settings are place in <atrong>__init__.py</atrong></p>. We have one file for each possible environment(development, staging, production) with the environment specific settings like DEBUG and TEMPLATE_DEBUG. In <strong>local.py</strong> are placed the settings specific for the machine where the project is running. This file should not go into the repository as this is where the access database password and API keys should reside.<br/>
+The big difference here is the settings part. It is moved as a separate module where all common/general settings are place in <atrong>__init__.py. We have one file for each possible environment(development, staging, production) with the environment specific settings like DEBUG and TEMPLATE_DEBUG. In <strong>local.py</strong> are placed the settings specific for the machine where the project is running. This file should not go into the repository as this is where the access database password and API keys should reside.<br/>
 I having one local Nginx configuration file because I use the webserver to serve the static files when working locally this is the <strong>&lt;project_name&gt;.development.nginx.local.conf</strong>.<br/>
-For each environment there is also a couple of configuration files - one for the web server(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.nginx.uwsgi.conf</strong>) and one for the uwsgi(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.uwsgi.conf</strong>). I make symbolic links pointing to these files so any changes made are automatically pushed/pulled via version control, I only have to reload the configuration. There is no option to change something in the configuration at one station and to forget to transfer it to the rest.
+For each environment there is also a couple of configuration files - one for the web server(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.nginx.uwsgi.conf</strong>) and one for the uwsgi(<strong>&lt;project_name&gt;.&lt; environment_type&gt;.uwsgi.conf</strong>). I make symbolic links pointing to these files so any changes made are automatically pushed/pulled via version control, I only have to reload the configuration. There is no option to change something in the configuration at one station and to forget to transfer it to the rest.</atrong></p>
 <h3>Benefits</h3>
 <ul>
 <li>Complete isolation from other projects using virtual environment</li>

@@ -6,28 +6,26 @@ tags = ["Development", "Python", "web development"]
 draft = false
 +++
 <h2>... or what is the cost of using regular expressions for simple tasks</h2>
-<p><a href="http://en.wikipedia.org/wiki/Regular_expression">Regular expressions</a> are one of the most powerful tools in computing I have ever seen. My previous post about <a href="/django-compressor-and-image-preloading/">Django compressor and image preloading</a> is a good example how useful they might be. The only limit of their use is your imagination. But "with great power, comes great responsibility" or in this case a great cost. Even the simplest expressions can be quite heavy compared with other methods.</p>
+<p><a href="http://en.wikipedia.org/wiki/Regular_expression">Regular expressions</a> are one of the most powerful tools in computing I have ever seen. My previous post about <a href="http://ilian.i-n-i.org/django-compressor-and-image-preloading/">Django compressor and image preloading</a> is a good example how useful they might be. The only limit of their use is your imagination. But "with great power, comes great responsibility" or in this case a great cost. Even the simplest expressions can be quite heavy compared with other methods.</p>
 <p>The reason to write about this is a question recently asked in a python group. It was about how to get the elements of a list that match specific string. My proposal was to use comprehension list and simple string comparison while other member proposed using a regular expression. I was pretty sure that the regular expression is slower but not sure exactly how much slower so I made a simple test to find out.<br/>
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">timeit</span>
+<pre><code class="language-python">import re
+import timeit
 
-<span class="n">my_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">'abc-123'</span><span class="p">,</span> <span class="s">'def-456'</span><span class="p">,</span> <span class="s">'ghi-789'</span><span class="p">,</span> <span class="s">'abc456'</span><span class="p">,</span> <span class="s">'abc'</span><span class="p">,</span> <span class="s">'abd'</span><span class="p">]</span>
+my_list = ['abc-123', 'def-456', 'ghi-789', 'abc456', 'abc', 'abd']
 
-<span class="k">def</span> <span class="nf">re_check</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">my_list</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">'^abc$'</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span>
+def re_check():
+    return [i for i in my_list if re.match('^abc$', i)]
 
-<span class="n">t</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">re_check</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">'re_check result &gt;&gt;'</span><span class="p">,</span> <span class="n">re_check</span><span class="p">()</span>
-<span class="k">print</span> <span class="s">"</span><span class="si">%.2f</span><span class="s"> usec/pass"</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1000000</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span><span class="o">/</span><span class="mi">100000</span><span class="p">)</span>
+t = timeit.Timer(re_check)
+print 're_check result &gt;&gt;', re_check()
+print "%.2f usec/pass" % (1000000 * t.timeit(number=100000)/100000)
 
-<span class="k">def</span> <span class="nf">simple_check</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">my_list</span> <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="s">'abc'</span><span class="p">]</span>
+def simple_check():
+    return [i for i in my_list if i=='abc']
 
-<span class="n">t</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span><span class="n">simple_check</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">'simple_check result &gt;&gt;'</span><span class="p">,</span> <span class="n">simple_check</span><span class="p">()</span>
-<span class="k">print</span> <span class="s">"</span><span class="si">%.2f</span><span class="s"> usec/pass"</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1000000</span> <span class="o">*</span> <span class="n">t</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span><span class="o">/</span><span class="mi">100000</span><span class="p">)</span>
-</pre></div>
-</p>
+t = timeit.Timer(simple_check)
+print 'simple_check result &gt;&gt;', simple_check()
+print "%.2f usec/pass" % (1000000 * t.timeit(number=100000)/100000)</code></pre></p>
 <p>The results was 23.99 vs 1.41 usec/pass respectively for regular expression vs direct comparison i.e. the regexp was 17 times slower. The difference from the example above may be OK in some cases but it rises with the size of the list. This is a simple example how something really quick on local version may take significant time on production and even to broke your application.</p>
 <p>So, should you learn and use regular expressions?<br/>
 Yes! Absolutely!</p>

@@ -8,40 +8,38 @@ draft = false
 <p><strong>Preface:</strong> Sometimes, parts of the data that you have to display in your application reside out of the Django models. Simple example for this is the following case - the client requires that you build them a webshop but they already have <a href="http://sfb.i-n-i.org/how-a-crm-solution-will-help-your-business/" title="What is CRM and it may help your business">CRM solution</a> that holds their products info. Of course they provide you with a mechanism to read this data from their CRM.</p>
 <p><strong>Specialty:</strong> The problem is that the data in their CRM does not hold some of the product information that you need. For instance it misses SEO-friendly description and product image. So you will have to set up a model at your side and store these images there. It is easy to join them, the only thing that you will need is a simple unique key for every product.</p>
 <p><strong>Solution:</strong> Here we use the product_id field to make the connection between the CRM data and the Django model.<br/>
-<div class="highlight"><pre><span class="c"># in models.py</span>
-<span class="k">class</span> <span class="nc">Product</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">product_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">'Original Product'</span><span class="p">),</span>
-                                     <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">'SEO-friendly Description'</span><span class="p">),</span>
-                                   <span class="n">blank</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">pod_image</span> <span class="o">=</span> <span class="n">FilerImageField</span><span class="p">(</span><span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s">'Product Image'</span><span class="p">),</span>
-                                <span class="n">blank</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<pre><code class="language-python"># in models.py
+class Product(models.Model):
+    product_id = models.IntegerField(_('Original Product'),
+                                     unique=True)
+    description = models.TextField(_('SEO-friendly Description'),
+                                   blank=True)
+    pod_image = FilerImageField(verbose_name=_('Product Image'),
+                                blank=True, null=True)
 
-   <span class="nd">@property</span>
-   <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-       <span class="k">return</span> <span class="n">crm_api</span><span class="o">.</span><span class="n">get_product_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product_id</span><span class="p">)</span>
+   @property
+   def name(self):
+       return crm_api.get_product_name(self.product_id)
 
-<span class="c"># in forms.py</span>
-<span class="k">class</span> <span class="nc">ProductForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                           <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                               <span class="s">'readonly'</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-                               <span class="s">'style'</span><span class="p">:</span> <span class="s">'border: none'</span><span class="p">}))</span>
+# in forms.py
+class ProductForm(forms.ModelForm):
+    name = forms.CharField(required=False,
+                           widget=forms.TextInput(attrs={
+                               'readonly': True,
+                               'style': 'border: none'}))
 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Product</span>
-        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">'product_id'</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">Select</span><span class="p">(),</span>
-        <span class="p">}</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ProductForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'product_id'</span><span class="p">]</span><span class="o">.</span><span class="n">widget</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">crm_api</span><span class="o">.</span><span class="n">get_product_choices</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span><span class="o">.</span><span class="n">initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">name</span>
-</pre></div>
-</p>
+    class Meta:
+        model = Product
+        widgets = {
+            'product_id': forms.Select(),
+        }
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields['product_id'].widget.choices = crm_api.get_product_choices()
+        if self.instance.id:
+            self.fields['name'].initial = self.instance.name</code></pre></p>
 <p>The form here should be used in the admin(add/edit) page of the model. We define that the product_id field will use the select widget and we use a method that connect to the CRM and returns the product choices list.<br/>
 The "self.instance.id" check is used to fill the name field for product that are already saved.</p>
-<p><strong>Final words:</strong> This is a very simple example but its idea is to show the basic way to connect your models with another app. I strongly recommend you to use <a href="/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">caching</a> if your CRM data is not modified very often in order to save some bandwidth and to speed up your application.<br/>
+<p><strong>Final words:</strong> This is a very simple example but its idea is to show the basic way to connect your models with another app. I strongly recommend you to use <a href="http://ilian.i-n-i.org/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">caching</a> if your CRM data is not modified very often in order to save some bandwidth and to speed up your application.<br/>
 Also if you have multiple field it may be better to overwrite the __getattr__ method instead of defining separate one for each property that you need to pull from the outer application.</p>
 <p>P.S. Thanks to <a href="http://migaat.blogspot.com/">Miga</a> for the code error report.</p>

@@ -7,41 +7,35 @@ draft = false
 +++
 <h2>... or how to get a dynamic drop-down list with Django forms</h2>
 <p><strong>The problem: </strong>Lets say that you need a form with a drop-down list that have dynamic values. With Django this can be done simple and fast, but if you are new you may get yourself into a trap. In a standard form(with static values in the drop-down) your code will be something like this:</p>
-<p><div class="highlight"><pre><span class="n">MY_CHOICES</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s">'1'</span><span class="p">,</span> <span class="s">'Option 1'</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">'2'</span><span class="p">,</span> <span class="s">'Option 2'</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">'3'</span><span class="p">,</span> <span class="s">'Option 3'</span><span class="p">),</span>
-<span class="p">)</span>
+<p><pre><code class="language-python">MY_CHOICES = (
+    ('1', 'Option 1'),
+    ('2', 'Option 2'),
+    ('3', 'Option 3'),
+)
     
-<span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
-    <span class="n">my_choice_field</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">MY_CHOICES</span><span class="p">)</span>
-</pre></div>
-
+class MyForm(forms.Form):
+    my_choice_field = forms.ChoiceField(choices=MY_CHOICES)</code></pre>
 So if you want the values to be dynamic(or dependent of some logic) you can simply modify your code to something like this:
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">get_my_choices</span><span class="p">():</span>
-    <span class="c"># you place some logic here</span>
-    <span class="k">return</span> <span class="n">choices_list</span>
+<pre><code class="language-python">def get_my_choices():
+    # you place some logic here
+    return choices_list
 
-<span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
-    <span class="n">my_choice_field</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">get_my_choices</span><span class="p">())</span>
-</pre></div>
-
+class MyForm(forms.Form):
+    my_choice_field = forms.ChoiceField(choices=get_my_choices())</code></pre>
 and here you will fail(not absolutely). This is a common mistake and sooner or later you will see what you messed but it my be too late.
 
 <strong>Speciality: </strong>the trick is that in this case my_choice_field choices are initialized on server (re)start. Or in other words once you run the server the choices are loaded(calculated) and they will not change until next (re)start. This mean that your logic will be executed only once. This will be OK if your logic is server specific(depends from server settings) or "semi-dynamic" in any other way. But you need this list to be updated on every form load you will need to use something the form __init__ method.
 
 <strong>Solution: </strong>fortunately the form`s class has an __init__ method that is called on every form load. Most of the times you skipped it in the form definition but now you will have to use it.
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">get_my_choices</span><span class="p">():</span>
-    <span class="c"># you place some logic here</span>
-    <span class="k">return</span> <span class="n">choices_list</span>
+<pre><code class="language-python">def get_my_choices():
+    # you place some logic here
+    return choices_list
 
-<span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MyForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s">'my_choice_field'</span><span class="p">]</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">ChoiceField</span><span class="p">(</span>
-            <span class="n">choices</span><span class="o">=</span><span class="n">get_my_choices</span><span class="p">()</span> <span class="p">)</span>
-</pre></div>
-<br/>
+class MyForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(MyForm, self).__init__(*args, **kwargs)
+        self.fields['my_choice_field'] = forms.ChoiceField(
+            choices=get_my_choices() )</code></pre><br/>
 You first call the __init__ method of the parent class(Form) using the super keyword and then declare your dynamic fields(in this case my_choice_field). With this code get_my_choices is called on every form load and you will get your dynamic drop-down.</p>
 <p><strong>Final words: </strong>have in mind that this method also have one strong drawback. If your application have a heavy load, executing a logic on every form load may(will) bring you troubles. So some caching of the form or the logic result may be useful.<br/>
 And remember If you have other approach, idea or question I am always ready to hear it.</p>

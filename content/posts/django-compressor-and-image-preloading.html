@@ -8,34 +8,30 @@ draft = false
 <p><strong>Preface:</strong> Have you noticed how on some websites when you click on a link that opens a lightbox or any overlay for first time it takes some time to display the border/background/button images. Not quite fancy, right?<br/>
 This is because the load of this images starts at the moment the overlay is rendered on the screen. If this is your first load and these images are not in your browser cache it will take some time for the browser to retrieve them from the server.</p>
 <p><strong>Solution:</strong> The solution for this is to preload the images i.e. to force the browser to request them from the server before they are actually used. With a simple javascript function and a list of the images URLs this is a piece of cake:<br/>
-<div class="highlight"><pre><span class="err">$</span><span class="o">.</span><span class="n">preLoadImages</span> <span class="o">=</span> <span class="n">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">var</span> <span class="n">args_len</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="n">length</span><span class="p">;</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">var</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">args_len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">var</span> <span class="n">cacheImage</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s">'img'</span><span class="p">);</span>
-        <span class="n">cacheImage</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">arguments</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<pre><code class="language-javascript">$.preLoadImages = function() {
+    var args_len = arguments.length;
+    for (var i=0; i &lt; args_len; i++) {
+        var cacheImage = document.createElement('img');
+        cacheImage.src = arguments[i];
+    }
+}
 
-<span class="err">$</span><span class="o">.</span><span class="n">preLoadImages</span><span class="p">(</span><span class="s">'/img/img1.png'</span><span class="p">,</span> <span class="s">'/img/img2.png'</span><span class="p">)</span>
-</pre></div>
-
+$.preLoadImages('/img/img1.png', '/img/img2.png')</code></pre>
 Please have in mind that the code above uses the <a href="http://jquery.com/">jQuery</a> library.
 
 <strong>Specialty:</strong> Pretty easy, but you have to hardcode the URLs of all images. Also if you are using <a href="https://github.com/jezdez/django_compressor/" target="_blank">Django compressor</a> then probably you are aware that it adds extra hash to the URLs of the images in the compressed CSS files. The hash depends from the <a href="http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_HASHING_METHOD">COMPRESS_CSS_HASHING_METHOD</a> settings and can not be avoided. It is pretty useful cause it forces the client browser to reload the images every time when something has been changed.  unfortunately our hardcoded list of URLs does not have this hash. So wouldn't it be much simpler if instead of hardcoding URLs we just read them from the CSS files?
 
 <strong>Solution 2:</strong>
-<div class="highlight"><pre><span class="err">$</span><span class="o">.</span><span class="n">preLoadImages</span> <span class="o">=</span> <span class="n">function</span><span class="p">()</span> <span class="p">{</span>
-    <span class="err">$</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="err">$</span><span class="p">(</span><span class="s">'link[rel="stylesheet"]'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">href</span><span class="p">,</span> <span class="n">function</span><span class="p">(</span><span class="n">data</span><span class="p">){</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="o">/</span><span class="n">url</span>\<span class="p">([</span><span class="s">'|"]?(\S+\.(gif|jpg|jpeg|png)[^'</span><span class="p">(]</span><span class="o">*</span><span class="p">)[</span><span class="s">'|"]?\)/ig;</span>
-        <span class="k">while</span> <span class="p">(</span><span class="n">match</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="k">exec</span><span class="p">(</span><span class="n">data</span><span class="p">)){</span>
-                <span class="n">var</span> <span class="n">cacheImage</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s">'img'</span><span class="p">);</span>
-                <span class="n">cacheImage</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-            <span class="p">}</span>
-        <span class="p">});</span>
-<span class="p">}</span>
+<pre><code class="language-javascript">$.preLoadImages = function() {
+    $.get($('link[rel="stylesheet"]')[0].href, function(data){
+        r = /url\(['|"]?(\S+\.(gif|jpg|jpeg|png)[^'(]*)['|"]?\)/ig;
+        while (match = r.exec(data)){
+                var cacheImage = document.createElement('img');
+                cacheImage.src = match[1];
+            }
+        });
+}
 
-<span class="err">$</span><span class="o">.</span><span class="n">preLoadImages</span><span class="p">()</span>
-</pre></div>
-<br/>
+$.preLoadImages()</code></pre><br/>
 Now with the help of regular expressions we can read the image URLs directly from the CSS file together with the hash part. Please note the zero index in the css file selector, if your main CSS is not the first declared style-sheet then you will have to change the index according to its position.</p>
 <p>I hope you will find this solutions simple and useful. As always feel free to comment, share and propose code improvements.</p>

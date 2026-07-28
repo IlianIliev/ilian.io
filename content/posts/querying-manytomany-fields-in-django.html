@@ -7,19 +7,17 @@ draft = false
 +++
 <h2>... or how to select items that have one or more categories matching with other item categories</h2>
 <p><strong>The problem:</strong> having a Many To Many relation(ManyToManyField) is really useful when you have to link one object to many other. For example one artist may play in several styles, or a teacher can teach more than one subjects. I`ll use the latter example for the post. If you want to get all teachers that teach (for example) "music" you just have to do something like:<br/>
-<div class="highlight"><pre><span class="n">Teacher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subjects</span> <span class="o">=</span> <span class="n">music_obj</span><span class="p">)</span>
-</pre></div>
-
+<code>
+Teacher.objects.filter(subjects = music_obj)
+</code>
 The real problem comes when you want to select all teachers that have subject matching one or more of another teacher subjects. For example "<strong>teacher_a</strong>" teaches several subject and we want to find all his colleges that teach at least one of his.
 
 <strong>Solution:</strong> to achieve this we have to use the Q object(imported from django.db.models) in a way similar to the making of "OR" query.
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">Q</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">teacher_a</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">subjects</span> <span class="o">=</span> <span class="n">subject</span><span class="p">)</span> 
-<span class="n">colegues</span> <span class="o">=</span> <span class="n">Teacher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
-</pre></div>
-<br/>
+<pre><code class="language-python">from django.db.models import Q
+x = Q()
+for subject in teacher_a.subjects.all():
+    x = x | Q(subjects = subject) 
+colegues = Teacher.objects.filter(x).distinct()</code></pre><br/>
 Lets see what happens line by line:</p>
 <p style="margin-left: 20px;">
 <strong>1)</strong> import the Q class<br/>
