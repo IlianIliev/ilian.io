@@ -6,9 +6,9 @@ tags = ["Development", "Python", "web development"]
 draft = false
 +++
 <h2>... or what is the cost of using regular expressions for simple tasks</h2>
-<p><a href="http://en.wikipedia.org/wiki/Regular_expression">Regular expressions</a> are one of the most powerful tools in computing I have ever seen. My previous post about <a href="http://ilian.i-n-i.org/django-compressor-and-image-preloading/">Django compressor and image preloading</a> is a good example how useful they might be. The only limit of their use is your imagination. But "with great power, comes great responsibility" or in this case a great cost. Even the simplest expressions can be quite heavy compared with other methods.</p>
+<p><a href="http://en.wikipedia.org/wiki/Regular_expression">Regular expressions</a> are one of the most powerful tools in computing I have ever seen. My previous post about <a href="/django-compressor-and-image-preloading/">Django compressor and image preloading</a> is a good example how useful they might be. The only limit of their use is your imagination. But "with great power, comes great responsibility" or in this case a great cost. Even the simplest expressions can be quite heavy compared with other methods.</p>
 <p>The reason to write about this is a question recently asked in a python group. It was about how to get the elements of a list that match specific string. My proposal was to use comprehension list and simple string comparison while other member proposed using a regular expression. I was pretty sure that the regular expression is slower but not sure exactly how much slower so I made a simple test to find out.<br/>
-<pre><code class="language-python">import re
+</p><pre><code class="language-python">import re
 import timeit
 
 my_list = ['abc-123', 'def-456', 'ghi-789', 'abc456', 'abc', 'abd']
@@ -25,7 +25,7 @@ def simple_check():
 
 t = timeit.Timer(simple_check)
 print 'simple_check result &gt;&gt;', simple_check()
-print "%.2f usec/pass" % (1000000 * t.timeit(number=100000)/100000)</code></pre></p>
+print "%.2f usec/pass" % (1000000 * t.timeit(number=100000)/100000)</code></pre>
 <p>The results was 23.99 vs 1.41 usec/pass respectively for regular expression vs direct comparison i.e. the regexp was 17 times slower. The difference from the example above may be OK in some cases but it rises with the size of the list. This is a simple example how something really quick on local version may take significant time on production and even to broke your application.</p>
 <p>So, should you learn and use regular expressions?<br/>
 Yes! Absolutely!</p>

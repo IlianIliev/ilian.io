@@ -2,25 +2,25 @@
 title = "Custom 404 Not Found page with Django CMS..."
 date = "2011-07-03T21:21:56Z"
 slug = "custom-404-not-found-page-with-django-cms"
-tags = ["custom", "Development", "django-cms", "Django CMS", "Django", "http", "SEO", "status codes"]
+tags = ["Development", "Django", "Django CMS", "SEO", "custom", "django-cms", "http", "status codes"]
 draft = false
 +++
 <h2>... or how to make user editable 404 page that stays in the pages tree of the CMS</h2>
 <p><strong>Basics:</strong> Yes you need it! You need 404 page cause you never know what may happen to a link: bad link paste, obsolete or deleted article, someone just playing with your URLs etc. It is better for both you and your website visitors to have a beauty page that follows the website design instead of the webserver default one that usually contains server information which is possible security issue. With Django this is easy, just make a HTML template with file name 404.html, place it in you root template directory and <em>voilà</em> - you are ready. You will also automatically have a <em>request_path</em> variable defined in the context which caries the URL that was not found.</p>
 <p><strong>Problem:</strong> sometimes clients require to be able to edit their 404 pages. Or other times you need to use some custom context or you want to integrate plug-ins and be able to modify them easy trough the CMS administration. For example: you want do display your brand new awesome "Sitemap Plug-in" on this 404 page.</p>
 <p><strong>Solution:</strong> Django allows you to specify custom 404 handler view so you just need to define one, set it in urls.py and make it to render the wanted page:<br/>
-<pre><code class="language-python"># in urls.py
+</p><pre><code class="language-python"># in urls.py
 handler404 = 'site_utils.handler404' 
 
 # in site_utils.py
 from cms.views import details 
 def handler404(request):
-    return details(request, '404-page-url')</code></pre>
+    return details(request, '404-page-url')</code></pre><p>
 
 Where '404-page-url' is the URL of the page you want to show for 404 errors. So everything seems fine and here is the pitfall. If you use it this way your web page will return "200 OK" instead of "404 Not Found". This could kill your SEO(except if you want your 404 page as first result for your website). So you just need to add a 404 header to the response:
-<pre><code class="language-python">def handler404(request):
+</p><pre><code class="language-python">def handler404(request):
     response = details(request, 'novini')
     response.status_code = 404
-    return response</code></pre></p>
+    return response</code></pre>
 <p><strong>Final words:</strong> Why are these <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP status codes</a> so important. The reason is that they tells the search engines and other auto crawling services what is the page status. Is it normal page, redirect, not found, error or something else. Providing incorrect status codes may/will have a negative effect on your website SEO so try to keep them correct, especially when it is easy to achieve as in the example above.</p>
 <p><strong>Note: If the code above is not working for you, please check Allan's solution in the comments</strong></p>

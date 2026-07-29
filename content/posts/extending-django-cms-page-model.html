@@ -2,14 +2,14 @@
 title = "Extending Django CMS Page Model"
 date = "2010-12-12T18:48:21Z"
 slug = "extending-django-cms-page-model"
-tags = ["Development", "django-admin", "django-cms", "Django CMS", "django-models", "Django"]
+tags = ["Development", "Django", "Django CMS", "django-admin", "django-cms", "django-models"]
 draft = false
 +++
 <h2>... or how to add some fields to the Page model in the admin without changing <a href="http://www.django-cms.org/">Django CMS</a> core</h2>
 <p><strong>The problem: </strong> Some times the Page model just lack of something you need. In my case this was "page avatars". Long story short - I needed an image/avatar for each page in my CMS. So what I have to do was to add a field to the Page model that will keep the info about the avatar path.</p>
 <p><strong>Speciality: </strong>Of course the simplest solution was just to edit the file(pagemodel.py) that contain the Page model. Unfortunately in the common case(and in my too) several different application resides on a single server and share the same Django CMS. So changing the core code is inconvenient because every change on it will affect all applications that rely on the same CMS core. So what? Copying the whole Django CMS files in my app and modifying them? This does not seems like a good solution too. Fortunately there is a simple way to do that and leave the core code unchanged.</p>
 <p><strong>Solution: </strong> First you need to create a new model that will hold the new fields you need and a foreign key to the Page model.<br/>
-<pre><code class="language-python">from django.db import models
+</p><pre><code class="language-python">from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from cms.models.pagemodel import Page
 from filebrowser.fields import FileBrowseField as FBF
@@ -18,10 +18,10 @@ class PageAvatars(models.Model):
     page = models.ForeignKey(Page, unique=True, verbose_name=_("Page"),
         editable=False, related_name='extended_fields')
     big_avatar      = FBF(_(u'Big Avatar'), max_length=255, blank=True)
-    small_avatar    = FBF(_(u'Small Avatar'), max_length=255, blank=True)</code></pre>
+    small_avatar    = FBF(_(u'Small Avatar'), max_length=255, blank=True)</code></pre><p>
 
 After you define the model it is time to make the admin.
-<pre><code class="language-python">from extended_pages.models import PageAvatars
+</p><pre><code class="language-python">from extended_pages.models import PageAvatars
 from cms.admin.pageadmin import PageAdmin
 from cms.models.pagemodel import Page
 from django.contrib import admin
@@ -32,7 +32,7 @@ class PageAvatarsAdmin(admin.TabularInline):
 PageAdmin.inlines.append(PageAvatarsAdmin)
 
 admin.site.unregister(Page)
-admin.site.register(Page, PageAdmin)</code></pre><br/>
+admin.site.register(Page, PageAdmin)</code></pre><p><br/>
 The last two lines(11 and 12) are used to force Django to reload the Page model admin.<br/>
 Now you have your new field as an inline in the Page admin.</p>
 <p><strong>Final words: </strong>As you can see the solution is simple, fast and the core code is unaffected. There is an unique constraint on the page field in PageAvatars model so you will not be able to add more than one avatar per page.<br/>

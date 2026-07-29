@@ -2,14 +2,14 @@
 title = "Simple Site Checker"
 date = "2012-01-30T22:03:13Z"
 slug = "simple-site-checker"
-tags = ["Development", "Python", "sitemap", "tools", "web", "Web", "XML"]
+tags = ["Development", "Python", "Web", "XML", "sitemap", "tools", "web"]
 draft = false
 +++
 <h2> ... a command line tool to monitor your sitemap links</h2>
 <p>I was thinking to make such tool for a while and fortunately I found some time so here it is.</p>
 <p><a href="https://github.com/IlianIliev/Simple-Site-Checker">Simple Site Checker</a> is a command line tool that allows you to run a check over the links in you XML sitemap.</p>
-<p><strong>How it works:</strong> The script requires a single attribute - a URL or relative/absolute path to xml-sitemap. It loads the XML, reads all loc-tags in it and start checking the links in them one by one.<br/>
-By default you will see no output unless there is an error - the script is unable to load the sitemap or any link check fails.<br/>
-Using the verbosity argument you can control the output, if you need more detailed information like elapsed time, checked links etc.<br/>
+<p><strong>How it works:</strong> The script requires a single attribute - a URL or relative/absolute path to xml-sitemap. It loads the XML, reads all loc-tags in it and start checking the links in them one by one.<br />
+By default you will see no output unless there is an error - the script is unable to load the sitemap or any link check fails.<br />
+Using the verbosity argument you can control the output, if you need more detailed information like elapsed time, checked links etc.<br />
 You can run this script through a cron-like tool and get an e-mail in case of error.</p>
 <p>I will appreciate any user input and ideas so feel free to comment.</p>

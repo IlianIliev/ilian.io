@@ -2,7 +2,7 @@
 title = "GAE, Timezones and weekdays..."
 date = "2010-05-23T08:03:17Z"
 slug = "gae-timezones-and-weekdays"
-tags = ["Development", "Google App Engine", "Python", "PyTZ", "timezones"]
+tags = ["Development", "Google App Engine", "PyTZ", "Python", "timezones"]
 draft = false
 +++
 <h2>... or how to find the date of week in specified timezone, no matter where your server is.</h2>
@@ -15,12 +15,12 @@ draft = false
 <p>So you can not be sure which server is currently responsible for your app. Also you have a DST(daylight saving time) that also must be included in calculation. Fortunately you can use UTC time and<br/>
 <a href="http://code.google.com/p/gae-pytz/" id="g80m" title="PyTZ for Google App Engine">PyTZ for GAE</a>.</p>
 <p><strong>Solution</strong>:<br/>
-<pre><code class="language-python">from datetime import datetime, timedelta
+</p><pre><code class="language-python">from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
 bg_zone = timezone('Europe/Sofia')
 bg_zone_time = bg_zone.localize(datetime.utcnow())
-day_of_week = bg_zone_time.strftime("%w")</code></pre></p>
+day_of_week = bg_zone_time.strftime("%w")</code></pre>
 <p>
 <strong>Explanation</strong>:<br/>
 #5) create timezone object corresponding to your timezone(in my case this is Europe/Sofia)<br/>

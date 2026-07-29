@@ -2,22 +2,20 @@
 title = "Querying ManyToMany fields in Django..."
 date = "2011-03-23T19:15:25Z"
 slug = "querying-manytomany-fields-in-django"
-tags = ["Development", "django-models", "Django ORM", "Django", "manytomany"]
+tags = ["Development", "Django", "Django ORM", "django-models", "manytomany"]
 draft = false
 +++
 <h2>... or how to select items that have one or more categories matching with other item categories</h2>
 <p><strong>The problem:</strong> having a Many To Many relation(ManyToManyField) is really useful when you have to link one object to many other. For example one artist may play in several styles, or a teacher can teach more than one subjects. I`ll use the latter example for the post. If you want to get all teachers that teach (for example) "music" you just have to do something like:<br/>
-<code>
-Teacher.objects.filter(subjects = music_obj)
-</code>
+</p><pre><code class="language-python">Teacher.objects.filter(subjects = music_obj)</code></pre><p>
 The real problem comes when you want to select all teachers that have subject matching one or more of another teacher subjects. For example "<strong>teacher_a</strong>" teaches several subject and we want to find all his colleges that teach at least one of his.
 
 <strong>Solution:</strong> to achieve this we have to use the Q object(imported from django.db.models) in a way similar to the making of "OR" query.
-<pre><code class="language-python">from django.db.models import Q
+</p><pre><code class="language-python">from django.db.models import Q
 x = Q()
 for subject in teacher_a.subjects.all():
     x = x | Q(subjects = subject) 
-colegues = Teacher.objects.filter(x).distinct()</code></pre><br/>
+colegues = Teacher.objects.filter(x).distinct()</code></pre><p><br/>
 Lets see what happens line by line:</p>
 <p style="margin-left: 20px;">
 <strong>1)</strong> import the Q class<br/>

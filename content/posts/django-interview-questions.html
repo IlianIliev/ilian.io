@@ -5,36 +5,37 @@ slug = "django-interview-questions"
 tags = ["Django", "django-forms"]
 draft = false
 +++
-
 <h2>... and some answers</h2>
-<p>Well I haven't conducted any interviews recently but this one has been laying in my drafts for a quite while so it is time to take it out of the dust and finish it. As I have said in <a href="http://www.ilian.io/python-interview-question-and-answers/">Python Interview Question and Answers</a> these are basic questions to establish the basic level of the candidates.</p>
+
+<p>Well I haven't conducted any interviews recently but this one has been laying in my drafts for a quite while so it is time to take it out of the dust and finish it. As I have said in <a href="/python-interview-question-and-answers/">Python Interview Question and Answers</a> these are basic questions to establish the basic level of the candidates.</p>
+
 <ol>
-<li>
-<strong>Django's request response cycle</strong><br/>
-		You should be aware of the way Django handles the incoming requests - the execution of the middlewares, the work of the URL dispatcher and what should the views return. It is not necessary to know everything in the tiniest detail but you should be generally aware of the whole picture. For reference you can check "the live of the request" slide from my <a href="http://www.ilian.io/introduction-to-django-presentation/">Introduction to Django</a> presentation.
+	<li>
+		<strong>Django's request response cycle</strong><br />
+		You should be aware of the way Django handles the incoming requests - the execution of the middlewares, the work of the URL dispatcher and what should the views return. It is not necessary to know everything in the tiniest detail but you should be generally aware of the whole picture. For reference you can check "the live of the request" slide from my <a href="/introduction-to-django-presentation/">Introduction to Django</a> presentation.
 	</li>
-<li>
-<strong>Middlewares - what they are and how they work</strong><br/>
+	<li>
+		<strong>Middlewares - what they are and how they work</strong><br />
 		Middlewares are one of the most important parts in Django. Not only because they are quite powerfull and useful but also because the lack of knowledge about their work can lead to hours of debugging. From my experience the <em>process_request</em> and <em>process_response</em> hooks are the most frequently used and those are the one I always ask for. You should also know their execution order and when their execution starts/stop. For reference check the <a href="https://docs.djangoproject.com/en/1.8/topics/http/middleware/">official docs</a>.
 	</li>
-<li>
-<strong>Do you write tests? How?</strong><br/>
+	<li>
+		<strong>Do you write tests? How?</strong><br />
 		Having well tested code benefits you, the project and the rest of the team that is going to maintain/modify your code. Django's built-in <a href="https://docs.djangoproject.com/en/1.8/topics/testing/tools/">test client</a>, <a href="https://github.com/kmike/django-webtest/">Django Webtest</a>, <a href="https://factoryboy.readthedocs.org/en/latest/">Factory boy</a>, <a href="https://github.com/joke2k/faker">Faker</a> or whatever you use, I would like to hear about it and how you do it. There is not only one way/tool for it so I would like to know what are you using and how. You should show that you understand how important is to test your code and how to do it right. 
 	</li>
-<li>
-<strong>select_related and prefetch_related</strong><br/>
+	<li>
+		<strong>select_related and prefetch_related</strong><br />
 		Django's ORM (as every other) can be both a blessing and a curse. Getting a foreign key property can easily lead you to executing million queries. Using <em>select_related</em> and <em>prefetch_related</em> can come as a saviour so it is important to know how to use them.
 	</li>
-<li>
-<strong>Forms validation</strong><br/>
+	<li>
+		<strong>Forms validation</strong><br />
 		I expect from the candidates that they know how to build forms, to add custom validation for one field and how to validate fields that depend on each other.
 	</li>
-<li>
-<strong>Building a REST API with Django</strong><br/>
+	<li>
+		<strong>Building a REST API with Django</strong><br />
 		The most popular choices out there are <a href="http://www.django-rest-framework.org/">Django REST Framework</a> and <a href="http://tastypieapi.org/">Django Tastypie</a>. Have you used any of them, why an how. What issues have you faced? Here is the place to show that you understand the concept of REST APIs, the correct request/response types and the serialisation of the data.
 	</li>
-<li>
-<strong>Templates</strong><br/>
+	<li>
+		<strong>Templates</strong><br />
 		Building website using the built-in template system is often part of your daily tasks. This means that you should understand the template inheritance, how to reuse the block and so on. Having experience with <a href="https://github.com/ojii/django-sekizai/">sekizai</a> is a plus. 
 	</li>
 </ol>

@@ -2,45 +2,53 @@
 title = "Django, pytz, NonExistentTimeError and AmbiguousTimeError"
 date = "2015-03-29T23:02:44Z"
 slug = "django-pytz-nonexistenttimeerror-and-ambiguoustimeerror"
-tags = ["Django", "Python", "PyTZ", "timezones"]
+tags = ["Django", "PyTZ", "Python", "timezones"]
 draft = false
 +++
 <p><strong>Brief:</strong> In one of the project I work on we had to convert some old naive datetime objects to timezone aware ones. Converting naive datetime to timezone aware one is usually a straightforward job. In django you even have a nice utility function for this. For example:</p>
-<pre><code>import pytz
+
+<pre><code class="language-python">import pytz
 from django.utils import timezone
 
 
 timezone.make_aware(datetime.datetime(2012, 3, 25, 3, 52),
                     timezone=pytz.timezone('Europe/Stockholm'))
-# returns datetime.datetime(2012, 3, 25, 3, 52, tzinfo=&lt;DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST&gt;)</code></pre>
+# returns datetime.datetime(2012, 3, 25, 3, 52, tzinfo=<DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST>)</code></pre>
+
 <p><strong>Problem:</strong> You can use this for quite a long time until one day you end up with something like this:</p>
-<pre><code>timezone.make_aware(datetime.datetime(2012, 3, 25, 2, 52),
+
+<pre><code class="language-python">timezone.make_aware(datetime.datetime(2012, 3, 25, 2, 52),
                     timezone=pytz.timezone('Europe/Stockholm'))
 
 # which leads to
 Traceback (most recent call last):
-  File "", line 1, in 
+  File "<console>", line 1, in <module>
   File "/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py", line 358, in make_aware
     return timezone.localize(value, is_dst=None)
   File "/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py", line 327, in localize
     raise NonExistentTimeError(dt)
 pytz.exceptions.NonExistentTimeError: 2012-03-25 02:52:00</code></pre>
+
 <p>Or this:</p>
-<pre><code>timezone.make_aware(datetime.datetime(2012, 10, 28, 2, 52),
+
+<pre><code class="language-python">timezone.make_aware(datetime.datetime(2012, 10, 28, 2, 52),
                     timezone=pytz.timezone('Europe/Stockholm'))
 
 #throws
 Traceback (most recent call last):
-  File "", line 1, in 
+  File "<console>", line 1, in <module>
   File "/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py", line 358, in make_aware
     return timezone.localize(value, is_dst=None)
   File "/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py", line 349, in localize
     raise AmbiguousTimeError(dt)
 pytz.exceptions.AmbiguousTimeError: 2012-10-28 02:52:00</code></pre>
+
 <p><strong>Explanation:</strong> The reason for the first error is that in the real world this datetime does not exists. Due to the DST change on this date the clock jumps from 01:59 standard time to 03:00 DST. Fortunately (or not) pytz is aware of the fact that this time is invalid and will throw the exception above. The second exception is almost the same but it happens when switching from summer to standard time. From 01:59 DST the clock shifts to 01:00 standard time, so we end with a duplicate time.</p>
+
 <p><strong>Why has this happened(in our case)?</strong> Well we couldn't be sure how exactly this one got into our legacy data but the assumption is that at the moment when the record was saved the server has been in different timezone where this has been a valid time. </p>
+
 <p><strong>Solution 1:</strong> This fix is quite simple, just add an hour if the exception occurs.</p>
-<pre><code>try:
+<pre><code class="language-python">try:
     date = make_aware(
         datetime.fromtimestamp(date_time, timezone=pytz.timezone('Europe/Stockholm'))
     )
@@ -49,16 +57,19 @@ except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
         datetime.fromtimestamp(date_time) + timedelta(hours=1),
         timezone=pytz.timezone('Europe/Stockholm')
     )</code></pre>
+
 <p><strong>Solution 2:</strong> Instead of calling make_aware call timezone.localize directly.</p>
-<pre><code>try:
+<pre><code class="language-python">try:
     date = make_aware(
         datetime.fromtimestamp(date_time, timezone=pytz.timezone('Europe/Stockholm'))
     )
 except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
     timezone = pytz.timezone('Europe/Stockholm')
     date = timezone.localize(datetime.fromtimestamp(date_time), is_dst=False)</code></pre>
+
 <p>The second solution probably needs some explanation. First lets check what make_aware does. The code bellow is take from Django's <a href="https://github.com/django/django/blob/1.7.7/django/utils/timezone.py#L352" target="_blank">sourcecode</a> as it is in version 1.7.7</p>
-<pre><code>def make_aware(value, timezone):
+
+<pre><code class="language-python">def make_aware(value, timezone):
     """
     Makes a naive datetime.datetime in a given time zone aware.
     """
@@ -72,7 +83,12 @@ except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
                 "make_aware expects a naive datetime, got %s" % value)
         # This may be wrong around DST changes!
         return value.replace(tzinfo=timezone)</code></pre>
+
 <p>To simplify it, what Django does is to use the localize method of the timezone object(if it exists) to convert the datetime. When using pytz this localize method takes two arguments: the datetime value and <strong>is_dst</strong>. The last argument takes three possible values: None, False and True. When using None and the datetime matches the moment of the DST change pytz does not know how to handle the datetime and you get one of the exceptions shown above. False means that it should convert it to standard time and True that it should convert it to summer time.</p>
+
 <p><strong>Why isn't this fixed in Django?</strong> The simple answer is "because this is how it should work". For a bit longer check the respectful <a href="https://code.djangoproject.com/ticket/22598" target="_blank">ticket</a>.</p>
+
 <p><strong>Reminder:</strong> Do not forget that the "fix" above does not actually care whether the original datetime is during DST or not. In our case this was not criticla for our app, but in some other cases it might be, so use it carefully.</p>
+
+
 <p><strong>Thanks:</strong> Special thanks to Joshua who correctly pointed out in the comments that I have missed the <strong>AmbiguousTimeError</strong> in the original post which made me to look a bit more in the problem, research other solutions and update the article to its current content.</p>

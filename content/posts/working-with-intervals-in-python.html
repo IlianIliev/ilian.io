@@ -14,22 +14,20 @@ draft = false
 <p>
 <strong>Preparing the intervals:</strong> Working with lists in Python is so awesome, so creating the intervals is quite a simple task.
 
-<pre><code>intervals = [0] + \  # The zero intervals
+</p><pre><code class="language-python">intervals = [0] + \  # The zero intervals
             [x * 50 for x in range(1, 20)] + \  # The 50 intervals
             [x * 100 for x in range(10, 100)] + \  # The 100 intervals
             [x * 1000 for x in range(10, 102)]  # the 1000 intervals</code></pre>
-</p>
 <p>
 So after running the code above we will have a list with the maximum number of points for each interval. Now it is time to prepare the different buckets that will store the users count. To ease this we are going to use a defaultdict.
 
-<pre><code>from collections import defaultdict
+</p><pre><code class="language-python">from collections import defaultdict
 
 buckets = defaultdict(lambda: 0)</code></pre>
-</p>
 <p>
 This way, we can increase the count for each bucket without checking if it exists. Now lets got to counting
 
-<pre><code>for user in users:
+</p><pre><code class="language-python">for user in users:
     try:
         bucket = intervals[bisect.bisect_left(intervals, user.points)]
     except IndexError:
@@ -37,18 +35,16 @@ This way, we can increase the count for each bucket without checking if it exist
         bucket = intervals[-1]
 
 buckets[bucket] += 1</code></pre>
-</p>
 <p>
 <strong>How it works:</strong> Well it is quite simple. The bisect.bisect_left uses a binary search to estimate the position where an item should be inserted to keep the list, in our case <strong>intervals</strong> sorted. Using the position we take the value from the invervals that represent the bucker where the specified number should go. And we are ready.
 
 The result will looks like:
-<pre><code>{
+</p><pre><code class="language-python">{
         1: 10,
         10: 5,
         30: 8,
         1100: 2
     }</code></pre>
-</p>
 <p>
 <strong>Final words:</strong> As you see when the default dict is used it does not have values for the empty buckets. This can be good or bad depending from the requirements how to present the data but it can be esily fixed by using the items from the intervals as keys for the buckets.
 </p>

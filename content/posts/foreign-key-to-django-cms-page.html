@@ -2,23 +2,23 @@
 title = "Foreign key to Django CMS page ..."
 date = "2011-07-14T19:24:41Z"
 slug = "foreign-key-to-django-cms-page"
-tags = ["Development", "django-admin", "django-cms", "Django CMS", "django-forms", "django-models", "Django", "Python", "usability"]
+tags = ["Development", "Django", "Django CMS", "Python", "django-admin", "django-cms", "django-forms", "django-models", "usability"]
 draft = false
 +++
 <h2> ... how to make usable drop-downs with Django CMS pages </h2>
 <p><strong>Problem:</strong> some times when you create custom applications or plugins for Django CMS you need a property that connects the current item to a page in the CMS. Nothing simple than this - you just add a ForeignKey in your model that points to the Page model and everything is (almost)fine. Example:</p>
-<p><pre><code class="language-python">from cms.models import Page
+<pre><code class="language-python">from cms.models import Page
 
 class MyModel(models.Model):
     # some model attributes here
-    page = models.ForeignKey(Page)</code></pre>
+    page = models.ForeignKey(Page)</code></pre><p>
 
 If you registered your model in Django admin or just add a model form to it you will see something like this:
-<p style="text-align: center"><img alt="Django Admin Screenshot" class="alignnone size-full wp-image-438" height="342" src="http://ilian.i-n-i.org/wp-content/uploads/2011/07/django-admin.png" title="Django Admin Screenshot" width="563"/></p>
+<p style="text-align: center"><img alt="Django Admin Screenshot" class="alignnone size-full wp-image-438" height="342" src="/wp-content/uploads/2011/07/django-admin.png" title="Django Admin Screenshot" width="563"/></p>
 Cool right? Not exactly. The problem is that these pages are in hierarchical structure and listing them in a flat list may be/is little confusing. So let's indent them accordingly to their level in the hierarchy.
 
 <strong>Solution:</strong> The easies way to achieve this indentation is to overwrite the choices list of the ForeignKey field in the ModelForm __init__ method.
-<pre><code class="language-python">class MyModelForm(forms.ModelForm):
+</p><pre><code class="language-python">class MyModelForm(forms.ModelForm):
     class Meta:
         model = MyModel
     
@@ -29,9 +29,9 @@ Cool right? Not exactly. The problem is that these pages are in hierarchical str
             choices.append(
                 (page.id, ''.join(['-'*page.level, page.__unicode__()]))
             )
-        self.fields['page'].choices = choices</code></pre><br/>
+        self.fields['page'].choices = choices</code></pre><p><br/>
 The magic lies between lines 7 and 11, on line 7 we create a list with one element the default empty option for the drop down. The need to use "__iter__().next()" comes from the fact that the choices attribute of the fields is django.forms.models.ModelChoiceIterator object which is iterable, but not indexable i.e. you can not just use self.fields['url'].choices[0].<br/>
 After we had the empty choice now it is time to add the real ones, so we iterate over the queryset(8th line) that holds them and for each item we add a tuple to our choices list(10). The first item of the tuple is the page id - nothing special, but the second one... here the <strong>python magic</strong> comes. We multiple the minus sign('-') by the page level and join the result with the page title. The only thing left is to replace the field choices(line 12) and here is the result:</p>
-<p style="text-align: center"><img alt="Django Admin - usable drop-down" class="alignnone size-full wp-image-443" height="342" src="http://ilian.i-n-i.org/wp-content/uploads/2011/07/django-admin-2.png" title="Django Admin - usable drop-down" width="563"/></p>
+<p style="text-align: center"><img alt="Django Admin - usable drop-down" class="alignnone size-full wp-image-443" height="342" src="/wp-content/uploads/2011/07/django-admin-2.png" title="Django Admin - usable drop-down" width="563"/></p>
 <p><strong>Final words:</strong> For me this is much more usable than the flat list. Of course you can modify the queryset to return only published pages or filter the results in other way and still use the identation code from above.<br/>
 I'll be happy to hear your thoughts on this.</p>

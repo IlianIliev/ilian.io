@@ -2,22 +2,20 @@
 title = "Retrieving Google Analytics data with Python..."
 date = "2011-09-06T15:27:41Z"
 slug = "retrieving-google-analytics-data-with-python"
-tags = ["Development", "google", "Google", "google analytics", "Python", "web", "Web", "web development"]
+tags = ["Development", "Google", "Python", "Web", "google", "google analytics", "web", "web development"]
 draft = false
 +++
 <h2>... or how to pull data about page visits instead of implementing custom counter</h2>
 <p><strong>Preface:</strong> OK, so you have a website, right? And you are using Google Analytics to track your page views, visitors and so on?<em>(If not you should reconsider to start using it. It is awesome, free and have lost of features as custom segments, map overlay, AdSense integration and many more.)</em><br/>
 So you know how many people have visited your each page of your website, the bounce rate, the average time they spend on the page etc. And this data is only for you or for a certain amount whom you have granted access.</p>
-<p style="text-align: center"><img alt="Google Analytics" height="335" src="http://ilian.i-n-i.org/wp-content/uploads/2011/09/ga1.jpg" title="Google Analytics" width="580"/></p>
+<p style="text-align: center"><img alt="Google Analytics" height="335" src="/wp-content/uploads/2011/09/ga1.jpg" title="Google Analytics" width="580"/></p>
 <p><strong>Problem:</strong> But what happens if one day you decided to show a public statistic about visitors on your website. For example: How many people have opened the "Product X" page?<br/>
 Of course you can add a custom counter that increases the views each time when the page is open. Developed, tested and deployed in no time. Everyone is happy until one day someones cat took a nap on his keyboard and "accidentally" kept the F5 button pressed for an hour. The result is simple - one of you pages has 100 times more visits than the other. OK, you can fix this with adding cookies, IP tracking etc. But all this is reinventing the wheel. You already have all this data in your Google Analytics, the only thing you have to do is to stretch hand and take it.</p>
 <p><strong>Solution:</strong> In our case "the hand" will be an HTTP request via the Google Data API. First you will need to install the <a href="http://code.google.com/p/gdata-python-client/" title="Google Data API - Python version">Python version of the API</a>:<br/>
-<code>
-sudo easy_install gdata
-</code>
+</p><pre><code class="language-bash">sudo easy_install gdata</code></pre><p>
 
 Once you have the API installed you have to build a client and authenticate:
-<pre><code class="language-python">SOURCE_APP_NAME = 'The-name-of-you-app'
+</p><pre><code class="language-python">SOURCE_APP_NAME = 'The-name-of-you-app'
 my_client = gdata.analytics.client.AnalyticsClient(source=SOURCE_APP_NAME)
 my_client.client_login(
     'USERNAME',
@@ -27,12 +25,12 @@ my_client.client_login(
     account_type = 'GOOGLE',
 )
 
-token = my_client.auth_token</code></pre>
+token = my_client.auth_token</code></pre><p>
 SOURCE_APP_NAME is the name of the application that makes the request. You can set it to anything you like.
 After you build the client(2) you must authenticate using your Google account(3-9). If you have both Google and Google APPs account with the same username be sure to provide the correct account type(8).
 Now you have authenticated and it is time to build the request. Obviously you want to filter the data according some rules. The easiest way is to use the <a href="http://code.google.com/intl/bg/apis/analytics/docs/gdata/gdataExplorer.html" title="Data Feed Query Explorer">Data Feed Query Explorer</a> to build your filter and test it and then to port it to the code. Here is an example how to get the data about the page views for specific URL for a single month(remember to update the PROFILE_ID according to your profile).
 
-<pre><code class="language-python">account_query = gdata.analytics.client.AccountFeedQuery()
+</p><pre><code class="language-python">account_query = gdata.analytics.client.AccountFeedQuery()
 data_query = gdata.analytics.client.DataFeedQuery({
     'ids': 'ga:PROFILE_ID',
     'dimensions': '', #ga:source,ga:medium
@@ -44,7 +42,7 @@ data_query = gdata.analytics.client.DataFeedQuery({
     })
 
 feed = my_client.GetDataFeed(data_query)
-result = [(x.name, x.value) for x in feed.entry[0].metric]</code></pre></p>
+result = [(x.name, x.value) for x in feed.entry[0].metric]</code></pre>
 <p><strong>Final words:</strong> As you see it is relatively easy to get the data from Google but remember that this code makes two request to Google each time it is executed. So you will need to cache the result. The GA data is not real-time so you may automate the process to pull the data(if I remember correctly the data is updated once an hour) and store the results at your side which will really improve the speed. Also have in mind that this is just an example how to use the API instead of pulling the data page by page(as show above) you may pull the results for multiple URLs at once and compute the feed to get your data. It is all in your hands.<br/>
 You have something to add? Cool I am always open to hear(read) you comments and ideas.</p>
-<p><strong>Update:</strong> If you are using Django you should consider to use it Memcached to cache these result as shown in <a href="http://ilian.i-n-i.org/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">Caching websites with Django and Memcached</a></p>
+<p><strong>Update:</strong> If you are using Django you should consider to use it Memcached to cache these result as shown in <a href="/caching-websites-with-django-and-memcached/" title="Caching websites with Django and Memcached">Caching websites with Django and Memcached</a></p>

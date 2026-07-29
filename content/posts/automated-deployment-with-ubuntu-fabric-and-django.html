@@ -2,12 +2,12 @@
 title = "Automated deployment with Ubuntu, Fabric and Django"
 date = "2012-09-18T19:56:18Z"
 slug = "automated-deployment-with-ubuntu-fabric-and-django"
-tags = ["Automation", "deployment", "Development", "Django", "Fabric", "Python", "web development"]
+tags = ["Automation", "Development", "Django", "Fabric", "Python", "deployment", "web development"]
 draft = false
 +++
-<p>A few months ago I started to play with Fabric and the result was a simple script that <a href="http://ilian.i-n-i.org/fabric-and-django-how-to-automate-new-project-start/">automates the creation of a new Django project</a>. In the last months I continued my experiments and extended the script to a full stack for creation and deployment of Django projects.</p>
+<p>A few months ago I started to play with Fabric and the result was a simple script that <a href="/fabric-and-django-how-to-automate-new-project-start/">automates the creation of a new Django project</a>. In the last months I continued my experiments and extended the script to a full stack for creation and deployment of Django projects.</p>
 <p>As the details behind the script like the project structure that I use and the server setup are a bit long I will keep this post only on the script usage and I will write a follow up one describing the project structure and server.</p>
-<p>So in a brief the setup that I use consist of Ubuntu as OS, Nginx as web server and uWSGI as application server. The last one is controlled by <a href="http://upstart.ubuntu.com/" target="_blank">Upstart</a>. The script is available for download at <a href="https://github.com/IlianIliev/ubuntu-fabric-and-django">GitHub</a>.<br/>
+<p>So in a brief the setup that I use consist of Ubuntu as OS, Nginx as web server and uWSGI as application server. The last one is controlled by <a href="http://upstart.ubuntu.com/" target="_blank">Upstart</a>. The script is available for download at <a href="https://github.com/IlianIliev/ubuntu-fabric-and-django">GitHub</a>.<br />
 In a wait for more detailed documentation here is a short description of the main tasks and what they do:</p>
 <p><strong>startproject:&lt;project_name&gt;</strong></p>
 <ul>

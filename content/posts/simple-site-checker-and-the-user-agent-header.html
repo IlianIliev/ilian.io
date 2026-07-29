@@ -2,13 +2,13 @@
 title = "Simple Site Checker and the User-Agent header"
 date = "2012-10-22T19:22:15Z"
 slug = "simple-site-checker-and-the-user-agent-header"
-tags = ["Development", "Python", "web", "Web", "web development"]
+tags = ["Development", "Python", "Web", "web", "web development"]
 draft = false
 +++
-<p><strong>Preface: </strong> Nine months ago(I can't believe it was that long) I created a script called <a href="http://ilian.i-n-i.org/simple-site-checker/">Simple Site Checker</a> to ease the check of sitemaps for broken links. The script code if publicly available at <a href="https://github.com/IlianIliev/Simple-Site-Checker">Github</a>. Yesterday(now when I finally found time to finish this post it must be "A few weeks ago") I decided to run it again on this website and nothing happened - no errors, no warning, nothing. Setting the output level to DEBUG showed the following message "Loading sitemap ..." and exited.<br/>
+<p><strong>Preface: </strong> Nine months ago(I can't believe it was that long) I created a script called <a href="/simple-site-checker/">Simple Site Checker</a> to ease the check of sitemaps for broken links. The script code if publicly available at <a href="https://github.com/IlianIliev/Simple-Site-Checker">Github</a>. Yesterday(now when I finally found time to finish this post it must be "A few weeks ago") I decided to run it again on this website and nothing happened - no errors, no warning, nothing. Setting the output level to DEBUG showed the following message "Loading sitemap ..." and exited.<br/>
 Here the fault was mine, I have missed a corner case in the error catching mechanism i.e. when the sitemap URL returns something different from "200 OK" or "500 internal server error". Just a few second and the mistake was fix.</p>
 <p><strong>Problem and Solution: </strong> I ran the script again and what a surprise the sitemap URL was returning "403 Forbidden". At the same time the sitemap was perfectly accessible via my browser. After some thinking I remembered about that some security plugins block the access to the website if there is not User-Agent header supplied. The reason for this is to block the access of simple script. In my case even an empty User-Agent did the trick to delude the plugin.<br/>
-<pre><code class="language-python">urllib2.urlopen(urllib2.Request(url,
-                                headers={'User-Agent': USER_AGENT}))</code></pre></p>
+</p><pre><code class="language-python">urllib2.urlopen(urllib2.Request(url,
+                                headers={'User-Agent': USER_AGENT}))</code></pre>
 <p><strong>Final words: </strong> As a result of the issue mention above one bug in simple site checker was found fixed. At the same time another issue about missing status and progress was raised, more details can be found at <a href="https://github.com/IlianIliev/Simple-Site-Checker/issues/2">Github</a> but in a few words an info message was added to each processed URL to indicate the progress.</p>
 <p>If you have any ideas for improvement or anything else feel free to comment, create issues and/or fork the script.</p>

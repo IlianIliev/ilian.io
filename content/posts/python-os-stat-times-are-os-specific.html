@@ -2,13 +2,13 @@
 title = "Python os.stat times are OS specific ... "
 date = "2011-11-21T07:00:02Z"
 slug = "python-os-stat-times-are-os-specific"
-tags = ["Development", "PyTDDMon", "Python", "pytthon os.stat", "TDD"]
+tags = ["Development", "PyTDDMon", "Python", "TDD", "pytthon os.stat"]
 draft = false
 +++
 <h2>... no problem cause we have stat_float_times</h2>
 <p><strong>Preface:</strong> recently I downloaded <a href="http://pytddmon.org/" title="Python Test Driven Development Monitor">PyTDDMon</a> on my office station and what a surprise - the files changes did not affect on the monitor. So I run a quick debug to check what is going on: the monitor was working running a check on every 5 seconds as documented but it does not refresh on file changes.</p>
 <p><strong>Problem:</strong> it appeared that the hashing algorithm always returns the same value no matter whether the files are changed or not. The calculation is based on three factors: file path, file size and time of last modification. I was changing a single file so the problem was in the last one. Another quick check and another surprise - os.stat(filename).st_mtime returns different value after the files is changed but the total hash stays unchanged. The problem was caused from st_mtime returning floating point value instead of integer.</p>
 <p><strong>Solution:</strong> Unfortunately the os.stat results appeared to be OS specific. Fortunately the type of the returned result is configurable. Calling <a href="http://docs.python.org/library/os.html#os.stat_float_times">os.stat_float_times(False)</a> in the main module force it to return integer values.</p>
-<p><strong>Final words:</strong> these OS/version/settings things can always surprise you. And most of the time it is not a pleasant surprise. Unfortunately testing the code on hundred of different workstations is not an option. But this is one of the good sides of the open source software. You download it, test it, debug it and have fun.<br/>
+<p><strong>Final words:</strong> these OS/version/settings things can always surprise you. And most of the time it is not a pleasant surprise. Unfortunately testing the code on hundred of different workstations is not an option. But this is one of the good sides of the open source software. You download it, test it, debug it and have fun.<br />
 Also special thanks to Olof(the man behind the pytddmon concept) for the tool, the quick response to my messages and for putting my fix so fast in the repo. I hope that this has saved someone nerves )</p>
 <p>P.S. If you are using Python and like TDD - <a href="http://pytddmon.org/" title="Python Test Driven Development Monitor">PYTDDMON</a> is the right tool for you.</p>

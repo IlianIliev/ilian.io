@@ -2,14 +2,14 @@
 title = "Extending Django CMS Page model - part II"
 date = "2010-12-14T22:50:51Z"
 slug = "extending-django-cms-page-model-part-ii"
-tags = ["Development", "django-cms", "Django CMS", "django-models", "Django"]
+tags = ["Development", "Django", "Django CMS", "django-cms", "django-models"]
 draft = false
 +++
 <h2>... or how to use the extended model in your templates and especially in the built-in navigation</h2>
-<p><strong>The problem: </strong>As you can see in the <a href="http://ilian.i-n-i.org/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a> there is a very simple way to extend the page model with some custom fields without changing the core code. But how to use your custom fields inside your templates? If you have an instance of the Page model everything is fine. You can just access its properties and everything is fine. Unfortunately there is a problem if you try it inside a custom template used for show_menu template tag.</p>
+<p><strong>The problem: </strong>As you can see in the <a href="/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a> there is a very simple way to extend the page model with some custom fields without changing the core code. But how to use your custom fields inside your templates? If you have an instance of the Page model everything is fine. You can just access its properties and everything is fine. Unfortunately there is a problem if you try it inside a custom template used for show_menu template tag.</p>
 <p><strong>Speciality: </strong>I was really surprised when I tried to access my custom properties inside the mentioned above template and nothing happened. After some investigation I found that the elements in show_menu are not instances of the Page model but of NavigationNode. And even more surprised that NavigationNode does not contain instance of the Page model in its properties. So I was in need to extend the NavigationNode class.</p>
 <p><strong>Solution: </strong>First of all I decided to make it easier to access the custom properties I created before, so I added the following code to it:<br/>
-<pre><code class="language-python">class PageAvatars(models.Model):
+</p><pre><code class="language-python">class PageAvatars(models.Model):
     page = models.ForeignKey(Page, unique=True, verbose_name=_("Page"),
         editable=False, related_name='extended_fields')
     big_avatar      = FileBrowseField(_(u'Big Avatar'), max_length=255, blank=True)
@@ -20,15 +20,15 @@ def _big_avatar(obj):
       return e_f.big_avatar
     return None
 Page._big_avatar = _big_avatar     
-Page.big_avatar = property(lambda u: u._big_avatar())</code></pre>
-For simplicity I have skipped the imports, but you can check them in the <a href="http://ilian.i-n-i.org/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a>
+Page.big_avatar = property(lambda u: u._big_avatar())</code></pre><p>
+For simplicity I have skipped the imports, but you can check them in the <a href="/extending-django-cms-page-model/" title="Extending Django CMS Page Model">previous post</a>
 So now I have a "shortcut" for accessing the big_avatar and it is time to make the Page object available in the NavigationNode.
 
-<pre><code class="language-python">from menus.base import NavigationNode
-NavigationNode.page_instance = lambda u: Page.objects.filter(pk = u.id)[0]</code></pre>
+</p><pre><code class="language-python">from menus.base import NavigationNode
+NavigationNode.page_instance = lambda u: Page.objects.filter(pk = u.id)[0]</code></pre><p>
 
 Line 2 defines a property("page_instance") that returns a Page object based on the primary key of the NavigationNode.id that equals to the corresponding Page primary key. Now you can use it in your custom navigation templates in the following way.
-<pre><code class="language-python">{% for child in children %}
+</p><pre><code class="language-python">{% for child in children %}
     {{child.page_instance.big_avatar}}
-{% endfor %}</code></pre></p>
+{% endfor %}</code></pre>
 <p><strong>Final words: </strong>I need to confess that I am really, really amazed how simply things can be done in <a href="http://www.djangoproject.com/" title="Django Framework">Django</a> and <a href="http://www.django-cms.org/" title="Django CMS">Django CMS</a>. It is really awesome. I hope that you will find this post really helpful and useful. And as always do not be afraid to propose a better solutions or to ask for deeper explanation if something is not clear enough.</p>
