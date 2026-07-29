@@ -15,7 +15,8 @@ This post will include the questions that are Python specific and I'll post the 
   The short answer is "neither", actually it is called "call by object” or “call by sharing"(you can check <a href="http://effbot.org/zone/call-by-object.htm">here</a> for more info). The longer one starts with the fact that this terminology is probably not the best one to describe how Python works. In Python everything is an object and all variables hold references to objects. The values of these references are to the functions. As result you can not change the value of the reference but you can modify the object if it is mutable. Remember numbers, strings and tuples are immutable, list and dicts are mutable.</li>
 <li><strong>Do you know what list and dict comprehensions are? Can you give an example?</strong><br />
   List/Dict comprehensions are syntax constructions to ease the creation of a list/dict based on existing iterable. According to the 3rd edition of "Learning Python" list comprehensions are generally faster than normal loops but this is something that may change between releases. Examples:<br />
-<pre><code class="language-python"># simple iteration
+</p><pre><code class="language-python">
+# simple iteration
 a = []
 for x in range(10):
     a.append(x*2)
@@ -26,7 +27,7 @@ a = [x*2 for x in range(10)]
 
 # dict comprehension
 a = {x: x*2 for x in range(10)}
-# a == {0: 0, 1: 2, 2: 4, 3: 6, 4: 8, 5: 10, 6: 12, 7: 14, 8: 16, 9: 18}</code></pre>
+# a == {0: 0, 1: 2, 2: 4, 3: 6, 4: 8, 5: 10, 6: 12, 7: 14, 8: 16, 9: 18}</code></pre><p>
 </li>
 
   <li><strong>What is PEP 8?</strong><br />
@@ -36,7 +37,8 @@ a = {x: x*2 for x in range(10)}
   I personally and most(by my observation) of the Python developers find the <a href="https://pypi.python.org/pypi/virtualenv">virtual environment</a> tool extremely useful. Yeah, probably you can live without it but this will make the work and support of multiple projects that requires different package versions a living hell.</li>
 
  <li><strong>Can you sum all of the elements in the list, how about to multuply them and get the result?</strong><br />
-  <pre><code class="language-python"># the basic way
+  </p><pre><code class="language-python">
+# the basic way
 s = 0
 for x in range(10):
     s += x
@@ -52,7 +54,8 @@ for x in range(1, 10):
 
 # the other way
 from operator import mul
-reduce(mul, range(1, 10))</code></pre><br />
+reduce(mul, range(1, 10))
+  </code></pre><p><br />
   As for the last example, I know Guido van Rossum is not a fan of reduce, more info <a href="http://www.artima.com/weblogs/viewpost.jsp?thread=98196">here</a>, but still for some simple tasks reduce can come quite handy.
 </li>
 <li><strong>Do you know what is the difference between lists and tuples? Can you give me an example for their usage?</strong><br />

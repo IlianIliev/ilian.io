@@ -6,33 +6,37 @@ tags = ["Development", "Django", "Django CMS", "Web", "django cms plugins", "dja
 draft = false
 +++
 <h2>... or how to reuse your plugins inside sections with different design</h2>
-<p><strong>Problem:</strong> Frequently on the websites I am developing I need to display same set of data in several different ways. For example if I have a news box that needs to appear in different sections of the website e.i. in sidebar, main content etc. Using <a href="https://www.django-cms.org/" target="_blank" title="Django CMS">Django CMS</a> plugins make this quite easy.<br/>
+<p><strong>Problem:</strong> Frequently on the websites I am developing I need to display same set of data in several different ways. For example if I have a news box that needs to appear in different sections of the website e.i. in sidebar, main content etc. Using <a href="https://www.django-cms.org/" title="Django CMS" target="_blank">Django CMS</a> plugins make this quite easy.<br />
 For simplicity we will take the following case. An image/text tuple with two layout variations - image on left of text and image on right.</p>
-<p style="text-align: center"><img alt="Django CMS Plugins" src="/wp-content/uploads/2011/10/Plugin_templates_Page_1-1.png" style="width: 424px; margin: 0 auto;" title="Django CMS Plugins"/></p>
+<p style="text-align: center"><img src="/static/2011/10/Plugin_templates_Page_1-1.png" alt="Django CMS Plugins" title="Django CMS Plugins" style="width: 424px; margin: 0 auto;" /></a></p>
 <p>Same data but different layout. All you need to do is just to allow your users to change the plugin template according to their needs. If you don't have experience with Django CMS Plugins I advice you to check how to <a href="http://docs.django-cms.org/en/2.1.3/extending_cms/custom_plugins.html" target="_blank" title="create custom Django CMS Plugins">create custom Django CMS Plugins</a> before you continue with solution.</p>
 <p><strong>Solution:</strong> First you will have to create a tuple holding your templates(and their human readable names) and add a field that will hold the chosen template to the plugin model.</p>
-<pre><code class="language-python">#models.py
+<pre><code class="language-python">
+#models.py
 PLUGIN_TEMPLATES = (
-  ('image_on_left.html', 'Image on left'),
-  ('image_on_right.html', 'Image on right'),
+  (&#x27;image_on_left.html&#x27;, &#x27;Image on left&#x27;),
+  (&#x27;image_on_right.html&#x27;, &#x27;Image on right&#x27;),
 )
 
 class SamplePlugin(CMSPlugin):
     # your plugin properties here
-    template = models.CharField('Template', max_length=255,
-                                choices = PLUGIN_TEMPLATES)</code></pre><p>
+    template = models.CharField(&#x27;Template&#x27;, max_length=255,
+                                choices = PLUGIN_TEMPLATES)
+</code></pre><p>
 
 Now it is time to tweak the template render method too:
 
-</p><pre><code class="language-python">#cms_plugins.py
+</p><pre><code class="language-python">
+#cms_plugins.py
 class CMSSamplePlugin(CMSPluginBase):
     model = SamplePlugin
-    name = 'Sample plugin'
+    name = &#x27;Sample plugin&#x27;
     render_template = PLUGIN_TEMPLATES[0][0]
     
     def render(self, context, instance, placeholder):
         if instance and instance.template:
             self.render_template = instance.template
         #your stuff here
-        return context</code></pre>
+        return context
+</code></pre>
 <p><strong>Final words:</strong> Yep, this is all. Simple isn't it? It is amazing how sometimes such small things are so useful. If you are having bigger difference in the layout of your templates you will probably have to put a little more stuff in the context that some of your templates may not need but it is OK. Feel free to comment and if you are using this "trick" please add your use case - it will be interesting to see in how many different cases this works.</p>

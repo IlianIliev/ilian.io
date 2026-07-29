@@ -7,82 +7,90 @@ draft = false
 +++
 <p><strong>Brief:</strong> In one of the project I work on we had to convert some old naive datetime objects to timezone aware ones. Converting naive datetime to timezone aware one is usually a straightforward job. In django you even have a nice utility function for this. For example:</p>
 
-<pre><code class="language-python">import pytz
+</p><pre><code class="language-python">
+import pytz
 from django.utils import timezone
 
 
 timezone.make_aware(datetime.datetime(2012, 3, 25, 3, 52),
-                    timezone=pytz.timezone('Europe/Stockholm'))
-# returns datetime.datetime(2012, 3, 25, 3, 52, tzinfo=<DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST>)</code></pre>
+                    timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;))
+# returns datetime.datetime(2012, 3, 25, 3, 52, tzinfo=&lt;DstTzInfo &#x27;Europe/Stockholm&#x27; CEST+2:00:00 DST&gt;)
+</code></pre><p>
 
 <p><strong>Problem:</strong> You can use this for quite a long time until one day you end up with something like this:</p>
 
-<pre><code class="language-python">timezone.make_aware(datetime.datetime(2012, 3, 25, 2, 52),
-                    timezone=pytz.timezone('Europe/Stockholm'))
+</p><pre><code class="language-python">
+timezone.make_aware(datetime.datetime(2012, 3, 25, 2, 52),
+                    timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;))
 
 # which leads to
 Traceback (most recent call last):
-  File "<console>", line 1, in <module>
-  File "/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py", line 358, in make_aware
+  File &quot;&lt;console&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py&quot;, line 358, in make_aware
     return timezone.localize(value, is_dst=None)
-  File "/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py", line 327, in localize
+  File &quot;/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py&quot;, line 327, in localize
     raise NonExistentTimeError(dt)
-pytz.exceptions.NonExistentTimeError: 2012-03-25 02:52:00</code></pre>
+pytz.exceptions.NonExistentTimeError: 2012-03-25 02:52:00</code></pre><p>
 
 <p>Or this:</p>
 
-<pre><code class="language-python">timezone.make_aware(datetime.datetime(2012, 10, 28, 2, 52),
-                    timezone=pytz.timezone('Europe/Stockholm'))
+</p><pre><code class="language-python">
+    
+timezone.make_aware(datetime.datetime(2012, 10, 28, 2, 52),
+                    timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;))
 
 #throws
 Traceback (most recent call last):
-  File "<console>", line 1, in <module>
-  File "/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py", line 358, in make_aware
+  File &quot;&lt;console&gt;&quot;, line 1, in &lt;module&gt;
+  File &quot;/home/ilian/venvs/test/lib/python3.4/site-packages/django/utils/timezone.py&quot;, line 358, in make_aware
     return timezone.localize(value, is_dst=None)
-  File "/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py", line 349, in localize
+  File &quot;/home/ilian/venvs/test/lib/python3.4/site-packages/pytz/tzinfo.py&quot;, line 349, in localize
     raise AmbiguousTimeError(dt)
-pytz.exceptions.AmbiguousTimeError: 2012-10-28 02:52:00</code></pre>
+pytz.exceptions.AmbiguousTimeError: 2012-10-28 02:52:00</code></pre><p>
 
 <p><strong>Explanation:</strong> The reason for the first error is that in the real world this datetime does not exists. Due to the DST change on this date the clock jumps from 01:59 standard time to 03:00 DST. Fortunately (or not) pytz is aware of the fact that this time is invalid and will throw the exception above. The second exception is almost the same but it happens when switching from summer to standard time. From 01:59 DST the clock shifts to 01:00 standard time, so we end with a duplicate time.</p>
 
 <p><strong>Why has this happened(in our case)?</strong> Well we couldn't be sure how exactly this one got into our legacy data but the assumption is that at the moment when the record was saved the server has been in different timezone where this has been a valid time. </p>
 
 <p><strong>Solution 1:</strong> This fix is quite simple, just add an hour if the exception occurs.</p>
-<pre><code class="language-python">try:
+</p><pre><code class="language-python">
+try:
     date = make_aware(
-        datetime.fromtimestamp(date_time, timezone=pytz.timezone('Europe/Stockholm'))
+        datetime.fromtimestamp(date_time, timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;))
     )
 except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
     date = make_aware(
         datetime.fromtimestamp(date_time) + timedelta(hours=1),
-        timezone=pytz.timezone('Europe/Stockholm')
-    )</code></pre>
+        timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;)
+    )</code></pre><p>
 
 <p><strong>Solution 2:</strong> Instead of calling make_aware call timezone.localize directly.</p>
-<pre><code class="language-python">try:
+</p><pre><code class="language-python">
+try:
     date = make_aware(
-        datetime.fromtimestamp(date_time, timezone=pytz.timezone('Europe/Stockholm'))
+        datetime.fromtimestamp(date_time, timezone=pytz.timezone(&#x27;Europe/Stockholm&#x27;))
     )
 except (pytz.NonExistentTimeError, pytz.AmbiguousTimeError):
-    timezone = pytz.timezone('Europe/Stockholm')
-    date = timezone.localize(datetime.fromtimestamp(date_time), is_dst=False)</code></pre>
+    timezone = pytz.timezone(&#x27;Europe/Stockholm&#x27;)
+    date = timezone.localize(datetime.fromtimestamp(date_time), is_dst=False)</code></pre><p>
 
 <p>The second solution probably needs some explanation. First lets check what make_aware does. The code bellow is take from Django's <a href="https://github.com/django/django/blob/1.7.7/django/utils/timezone.py#L352" target="_blank">sourcecode</a> as it is in version 1.7.7</p>
 
-<pre><code class="language-python">def make_aware(value, timezone):
-    """
+</p><pre><code class="language-python">
+def make_aware(value, timezone):
+    &quot;&quot;&quot;
     Makes a naive datetime.datetime in a given time zone aware.
-    """
-    if hasattr(timezone, 'localize'):
+    &quot;&quot;&quot;
+    if hasattr(timezone, &#x27;localize&#x27;):
         # This method is available for pytz time zones.
         return timezone.localize(value, is_dst=None)
     else:
-        # Check that we won't overwrite the timezone of an aware datetime.
+        # Check that we won&#x27;t overwrite the timezone of an aware datetime.
         if is_aware(value):
             raise ValueError(
-                "make_aware expects a naive datetime, got %s" % value)
+                &quot;make_aware expects a naive datetime, got %s&quot; % value)
         # This may be wrong around DST changes!
-        return value.replace(tzinfo=timezone)</code></pre>
+        return value.replace(tzinfo=timezone)    </code></pre><p>
 
 <p>To simplify it, what Django does is to use the localize method of the timezone object(if it exists) to convert the datetime. When using pytz this localize method takes two arguments: the datetime value and <strong>is_dst</strong>. The last argument takes three possible values: None, False and True. When using None and the datetime matches the moment of the DST change pytz does not know how to handle the datetime and you get one of the exceptions shown above. False means that it should convert it to standard time and True that it should convert it to summer time.</p>
 

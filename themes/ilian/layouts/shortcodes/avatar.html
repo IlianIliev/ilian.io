@@ -1,0 +1,5 @@
+{{- $size := .Get "size" | default "200x324" -}}
+{{- $anchor := .Get "anchor" | default "Smart" -}}
+{{- $img := resources.Get (.Get "src") -}}
+{{- $img = $img.Fill (printf "%s %s" $size $anchor) -}}
+<img class="{{ .Get "class" }}" src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ .Get "alt" }}" title="{{ .Get "title" }}" />

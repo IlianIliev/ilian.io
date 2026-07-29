@@ -19,6 +19,10 @@ enableRobotsTXT = true
     noClasses = false
     style = "default"
 
+[imaging]
+  quality = 90
+  resampleFilter = "Lanczos"
+
 [outputs]
   home = ["HTML", "RSS"]
   section = ["HTML"]

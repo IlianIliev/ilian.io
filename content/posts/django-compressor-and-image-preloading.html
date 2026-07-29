@@ -5,33 +5,35 @@ slug = "django-compressor-and-image-preloading"
 tags = ["Development", "Django", "Web", "jQuery", "javascript", "optimisation", "web development"]
 draft = false
 +++
-<p><strong>Preface:</strong> Have you noticed how on some websites when you click on a link that opens a lightbox or any overlay for first time it takes some time to display the border/background/button images. Not quite fancy, right?<br/>
+<p><strong>Preface:</strong> Have you noticed how on some websites when you click on a link that opens a lightbox or any overlay for first time it takes some time to display the border/background/button images. Not quite fancy, right?<br />
 This is because the load of this images starts at the moment the overlay is rendered on the screen. If this is your first load and these images are not in your browser cache it will take some time for the browser to retrieve them from the server.</p>
-<p><strong>Solution:</strong> The solution for this is to preload the images i.e. to force the browser to request them from the server before they are actually used. With a simple javascript function and a list of the images URLs this is a piece of cake:<br/>
-</p><pre><code class="language-javascript">$.preLoadImages = function() {
+<p><strong>Solution:</strong> The solution for this is to preload the images i.e. to force the browser to request them from the server before they are actually used. With a simple javascript function and a list of the images URLs this is a piece of cake:<br />
+</p><pre><code class="language-javascript">
+$.preLoadImages = function() {
     var args_len = arguments.length;
     for (var i=0; i &lt; args_len; i++) {
-        var cacheImage = document.createElement('img');
+        var cacheImage = document.createElement(&#x27;img&#x27;);
         cacheImage.src = arguments[i];
     }
 }
 
-$.preLoadImages('/img/img1.png', '/img/img2.png')</code></pre><p>
+$.preLoadImages(&#x27;/img/img1.png&#x27;, &#x27;/img/img2.png&#x27;)</code></pre><p>
 Please have in mind that the code above uses the <a href="http://jquery.com/">jQuery</a> library.
 
 <strong>Specialty:</strong> Pretty easy, but you have to hardcode the URLs of all images. Also if you are using <a href="https://github.com/jezdez/django_compressor/" target="_blank">Django compressor</a> then probably you are aware that it adds extra hash to the URLs of the images in the compressed CSS files. The hash depends from the <a href="http://django_compressor.readthedocs.org/en/latest/settings/#django.conf.settings.COMPRESS_CSS_HASHING_METHOD">COMPRESS_CSS_HASHING_METHOD</a> settings and can not be avoided. It is pretty useful cause it forces the client browser to reload the images every time when something has been changed.  unfortunately our hardcoded list of URLs does not have this hash. So wouldn't it be much simpler if instead of hardcoding URLs we just read them from the CSS files?
 
 <strong>Solution 2:</strong>
-</p><pre><code class="language-javascript">$.preLoadImages = function() {
-    $.get($('link[rel="stylesheet"]')[0].href, function(data){
-        r = /url\(['|"]?(\S+\.(gif|jpg|jpeg|png)[^'(]*)['|"]?\)/ig;
+</p><pre><code class="language-javascript">
+$.preLoadImages = function() {
+    $.get($(&#x27;link[rel=&quot;stylesheet&quot;]&#x27;)[0].href, function(data){
+        r = /url\([&#x27;|&quot;]?(\S+\.(gif|jpg|jpeg|png)[^&#x27;(]*)[&#x27;|&quot;]?\)/ig;
         while (match = r.exec(data)){
-                var cacheImage = document.createElement('img');
+                var cacheImage = document.createElement(&#x27;img&#x27;);
                 cacheImage.src = match[1];
             }
         });
 }
 
-$.preLoadImages()</code></pre><p><br/>
+$.preLoadImages()</code></pre><p><br />
 Now with the help of regular expressions we can read the image URLs directly from the CSS file together with the hash part. Please note the zero index in the css file selector, if your main CSS is not the first declared style-sheet then you will have to change the index according to its position.</p>
 <p>I hope you will find this solutions simple and useful. As always feel free to comment, share and propose code improvements.</p>

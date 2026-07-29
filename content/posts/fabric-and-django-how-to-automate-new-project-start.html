@@ -17,9 +17,10 @@ draft = false
 <li>Update the settings</li>
 </ol>
 <p>Thanks to the <a href="http://docs.fabfile.org/en/1.4.2/api/core/operations.html?highlight=local#fabric.operations.local" target="_blank">local</a> command the first one was easy. The problem was with the second one. Obviously each local command is run autonomously so I had to find some way have activated virtual environment for each task after this. Fortunately the <a href="http://docs.fabfile.org/en/1.4.2/api/core/context_managers.html?highlight=prefix#fabric.context_managers.prefix" target="_blank">prefix</a> context manager works like a charm. I had some issues making it read and write in the paths I wants and voilà it was working exactly as I want.</p>
-<p>The script is too long to place it here but is publicly available at <a href="https://gist.github.com/2818562" target="_blank" title="Fabric script that eases the creation of new Django Project">https://gist.github.com/2818562</a><br/>
-It is quite simple to use, you only need python, fabric and <a href="http://pypi.python.org/pypi/virtualenv" target="_blank">virtual environment</a>. Then just use the following code.<br/>
-</p><pre><code class="language-bash">fab start_project:my_mew_project</code></pre>
+<p>The script is too long to place it here but is publicly available at <a href="https://gist.github.com/2818562" title="Fabric script that eases the creation of new Django Project" target="_blank">https://gist.github.com/2818562</a><br />
+It is quite simple to use, you only need python, fabric and <a href="http://pypi.python.org/pypi/virtualenv" target="_blank">virtual environment</a>. Then just use the following code.<br />
+</p><pre><code class="language-bash">
+fab start_project:my_mew_project</code></pre>
 <p><strong>To Do:</strong> Here are few things that can be improved:</p>
 <ul>
 <li>Read the packages from a file</li>
