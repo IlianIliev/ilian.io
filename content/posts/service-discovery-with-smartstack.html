@@ -1,0 +1,52 @@
++++
+title = "Service Discovery with Smartstack"
+date = "2016-07-03T00:00:00Z"
+slug = "service-discovery-with-smartstack"
+tags = ["Technologies", "Web", "web"]
+draft = false
++++
+<h2>A week of innovation</h2>
+
+<p>First of all I want to thank <a href="https://www.lifesum.com/">Lifesum</a> for having another "Innovation Week", it is a great opportunity and I hope that more companies will start following it. In a few words the idea  is to allow everyone from the company to freely pick a project or idea that they want to develop and and work on it for one week.
+The benefits range from just making people happy because of the break of the routines and the opportunity to work on something a bit different, to seeing some pretty amazing prototypes that can be easily implemented in the company product.<p>
+
+<h3>What is Service Discovery?</h3>
+
+In summary service discovery is the possibility of the separate services in scalable infrastructure to communicate with each other and to the outside world.  In other words - how to route the requests to the corresponding service while providing balanced load on the instances in the pool and monitoring their health.
+Sounds simple, right?
+
+<p>Well, unfortunately service discovery in the real world is not that simple. In my presentation from the Stockholm Python MeetUp I talked a bit more about the complexity of service discovery, the suboptimal solutions and Smartstack - a solutions invented at AirBnB for simplifying the whole process.
+You can see more about it in my presentation:</p>
+
+
+<iframe src="//www.slideshare.net/slideshow/embed_code/key/mq36vxTraKuYa2" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/IlianIliev/airbnb-service-auto-discovery" title="AirBnB service auto discovery" target="_blank">AirBnB service auto discovery</a> </strong> from <strong><a href="//www.slideshare.net/IlianIliev" target="_blank">Ilian Iliev</a></strong> </div>
+
+
+However, the whole idea sounded so awesome that me and my colegue Esma decided to team up on that and try to explore a bit more the opportunities that Smarstack provides for us.
+
+In the matter of fact we decided to explore two different approaches: Smartstack and Consul. However we had some issue with the Consul setup and we found that it is not acting exactly the way we so at the end we focused all our attention to Smarstack.
+
+
+<h3>How does it work?</h3>
+
+Smartstack consists of two main components - Nerve and Synapse.
+Never handles the service registration while Synapse reads the information about the available services and configures a local HAProxy that plays as a load balancer for the service pool.
+
+For our tests we used Zookeeper as register for the services.
+
+
+<h3>What have we built?</h3>
+
+<p style="text-align: center;">
+    <img src="/media/infrastructure.png" alt="infrastructure">
+</p>
+
+<p>
+We created a small project consisting of a pool of Zookeeper instances, two node for service A and one node for service B. We tested multiple scenarios of crashes of one or more nodes, both zookepers instances and service instances, how the systems operates during the crashes and how it recovers after the nodes are brought back on.
+</p>
+
+
+<h3>Results</h3>
+As a result we created a public repository <a href="https://github.com/lifesum/service-discovery/tree/master/smartstack">service-discovery</a> giving details about the whole setup process, our tests and their results. Actually now is the time to praise Esma and her awesome work on conducting the tests and writing the great documentation from the repo above.
+
+So, if you have ever wondered about how service discovery works or you just want to test Smartstack, just clone the repo and follow the instruction. We would be happy to hear about your experience.

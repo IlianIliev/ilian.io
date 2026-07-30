@@ -1,0 +1,57 @@
++++
+title = "SQLAlchemy and \"Lost connection to MySQL server during query\""
+date = "2016-07-24T00:00:00Z"
+slug = "sqlalchemy-and-lost-connection-mysql-server-during-query"
+tags = ["Python"]
+draft = false
++++
+<h2> ... a weird behaviour when pool_recycle is ignored</h2>
+
+
+<p><strong>Preface:</strong> This is quite a standard problem for apps/websites with low traffic or those using heavy caching and hitting the database quite seldom. Most of the articles you will find on the topic will tell you one thing - change the wait_timeout setting in the database. Unfortunately in some of the cases this disconnect occurs much earlier than the expected wait_timeout (default ot 8 hours). If you are in one of those cases keep reading.</p>
+
+<p>This issue haunted our team for weeks. When we first faced it the project that was raising it was still in dev phase so it wasn't critical but with getting closer to the release data we started to search for solution. We have read several articles and decided that pool_recycle is our solution.</p>
+
+<p><strong>Adding pool_recycle:</strong> According to SQL Alchemy's documentation <a href="http://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine.params.pool_recycle">pool_recycle</a> <i>"causes the pool to recycle connections after the given number of seconds has passed"</i>.
+Nice, so if you recycle the connection in intervals smaller that the await_timeout the error above should not appear. Let's try it out:
+</p>
+
+<pre><code class="language-python">import time
+
+from sqlalchemy.engine import create_engine
+
+
+url = &#x27;mysql+pymysql://user:pass@127.0.0.1:3306/db&#x27;
+engine = create_engine(url, pool_recycle=1).connect()
+
+query = &#x27;SELECT NOW();&#x27;
+
+while True:
+    print(&#x27;Q1&#x27;, engine.execute(query).fetchall())
+    engine.execute(&#x27;SET wait_timeout=2&#x27;)
+    time.sleep(3)
+    print(&#x27;Q2&#x27;, engine.execute(query).fetchall())</code></pre><p>
+
+<p>
+So what does the code do - we create a connection to a local MySQL server and state that it should be recycled every second(line 7). Then we execute a simple query (line 12) just to verify that the connection is working.<br />
+We set the wait_timeout to 2 second and wait for 3. At this stage the connection to the server will timeout, but SQL Alchemy should recycle it, so the last query should be executed successfully and the loop should continue.<br />
+Unfortunately the results looks like:</p>
+<pre><code class="language-python">sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError)
+(2013, &#x27;Lost connection to MySQL server during query&#x27;) [SQL: &#x27;SELECT NOW();&#x27;]</code></pre><p>
+<p>Wait, what happened, why is not the connection recycled?</p>
+
+
+<p><strong>Solution:</strong> Well, as with all such problems the solution was much simpler compared to the time it took us to find it (we fought with this for days). The only change that solved it was on line 7:</p>
+
+<pre><code class="language-python">engine = create_engine(url, pool_recycle=1)
+
+# the result
+Q1 [(datetime.datetime(2016, 7, 24, 20, 51, 41),)]
+Q2 [(datetime.datetime(2016, 7, 24, 20, 51, 44),)]
+Q1 [(datetime.datetime(2016, 7, 24, 20, 51, 44),)]
+Q2 [(datetime.datetime(2016, 7, 24, 20, 51, 47),)]</code></pre><p>
+
+<p>
+Have you spot the difference? We are not calling the <strong>connect()</strong> method any more.</p>
+
+<p><strong>Final words:</strong> To keep it honest, I don't know why this solved the issue. Hopefully someone more familiar with SQL Alchemy will come with a reasonable explanation for it. The bad part is that the examples in the official docs are using "connect". So it is either a bug or a bad documentation. I will send this article to SQL Alchemy's Twitter account so hopefully we will see some input from them. Till then, if any of you have an idea explanation about the behaviour I'll be happy to hear it.</p>

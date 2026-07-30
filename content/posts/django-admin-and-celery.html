@@ -1,0 +1,58 @@
++++
+title = "Django Admin and Celery"
+date = "2017-02-28T00:00:00Z"
+slug = "django-admin-and-celery"
+tags = ["Django", "Python", "django-admin"]
+draft = false
++++
+<h2>A weird race condition</h2>
+
+<p><strong>Updated solution, please check below!</strong></p>
+
+<p>
+    <strong>Some background:</strong>
+
+    We have a model that is edited only via the Django admin. The save method of the model fires a celery task to update several other records. The reason for using celery here is that the amount of related objects can be pretty big and we decided that it is best to spawn the update as a background job. We have unit and integration tests, the code was also manually tested, everything looked nice and we deployed it.
+</p>
+
+<p>On the next day we found out that the code is acting weird. No errors, everything looked like it has worked but the updated records actually contained the old data before the change. The celery task accepts the object ID as an argument and the object is fetched from the database before doing anything else so the problem was not that we were passing some old state of the object. Then what was going on?
+</p>
+
+<p>
+  <strong>Trying to reproduce it:</strong>
+  Things are getting even weirder. The issues is happening every now and then.
+</p>
+
+<p>Hm...? Race condition?! Let's take a look at the code: <br />
+
+</p><pre><code class="language-python">class MyModel(models.Model):
+
+    def save(self, **kwargs):
+        is_existing_object = False if self.pk else True
+
+        super(MyModel, self).save(**kwargs)
+
+        if is_existing_object:
+            update_related_objects.delay(self.pk)</code></pre><p>
+
+So the celery task is called after the "super().save()" and the changes should be already stored to the database. Unless...
+</p>
+
+<p>
+  <strong>The bigger picture: </strong>(this is simplified version of what is happening for the full one check <a href="https://github.com/django/django/blob/master/django/contrib/admin/options.py#L1405" target="_blank">Django's source</a>)
+
+  </p><pre><code class="language-python">    def changeform_view(...):
+        with transaction.atomic():
+            ...
+            self.save_model(...)  # here happens the call to MyModel.save()
+            self.save_related(...)
+            ...</code></pre>
+
+<p>Ok, so the save is actually wrapped in transaction. This explains what is going on. Before the transaction is committed the updated changes are not available for the other connections. This way when the celery task is called we end up in a race condition whether the task will start before or after the transaction is completed. If celery manages to pick the task before the transaction is committed it reads the old state of the object and here is the error.</p>
+
+<p><strong>Solution (updated): </strong> The best solution is to use <a href="https://docs.djangoproject.com/en/1.10/topics/db/transactions/#performing-actions-after-commit" target="_blank">transaction.on_commit</a>. This way the call to the celery task will be executed only after the transaction is completed succesfully. Also, if you call the method outside of transaction the function will be executed immediately so it will also work if you are saving the model outside the admin. The only downside is that this functionality has been added to Django in version 1.9. So it wasn't an option for us. Still, special thanks to Jordan Jambazov for pointing this approach to me, I'll definitely use it in the future.
+</p><p>
+Unfortunately we are using Django 1.8 so we picked a quick and ugly fix. We added a 60 seconds countdown to the task call giving the transaction enough time to complete. As the call to the task depends on some logic and which properties of the models instance are changes moving it out of the save method was a problem. Another option could be to pass all the necessary data to the task itself but we decided that it will make it too complicated.</p>
+
+
+<p>However I am always open to other ideas so if you have hit this issue before I would like to know how you solved it.</p>
