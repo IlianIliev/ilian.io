@@ -17,6 +17,9 @@
                     <li{{ if .IsHome }} class="active"{{ end }}>
                         <a href="/">Articles</a>
                     </li>
+                    <li{{ if eq .RelPermalink "/talks/" }} class="active"{{ end }}>
+                        <a href="/talks/">Talks</a>
+                    </li>
                     <li{{ if eq .RelPermalink "/about-me/" }} class="active"{{ end }}>
                         <a href="/about-me/">About me</a>
                     </li>
