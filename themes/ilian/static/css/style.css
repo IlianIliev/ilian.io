@@ -312,3 +312,17 @@ p.meta {
     font-size: 0.8em;
     padding-bottom: 1em;
 }
+
+article {
+    margin-bottom: 3rem;
+}
+
+.article-body iframe {
+    margin-bottom: 1.5rem;
+}
+
+details.slides summary {
+    cursor: pointer;
+    color: #428bca;
+    text-decoration: underline;
+}
