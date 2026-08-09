@@ -10,6 +10,10 @@ enableRobotsTXT = true
 [permalinks]
   [permalinks.page]
     posts = "/:slug/"
+  [permalinks.term]
+    tags = "/tag/:slug/"
+  [permalinks.taxonomy]
+    tags = "/tag/"
 
 [taxonomies]
   tag = "tags"
