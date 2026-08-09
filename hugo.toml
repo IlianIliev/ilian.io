@@ -27,8 +27,17 @@ enableRobotsTXT = true
   quality = 90
   resampleFilter = "Lanczos"
 
+[outputFormats]
+  [outputFormats.FeedCompat]
+    mediaType = "text/html"
+    path = "feed"
+    baseName = "index"
+    isPlainText = false
+    isHTML = true
+    notAlternative = true
+
 [outputs]
-  home = ["HTML", "RSS"]
+  home = ["HTML", "RSS", "FeedCompat"]
   section = ["HTML"]
   taxonomy = ["HTML"]
   term = ["HTML", "RSS"]

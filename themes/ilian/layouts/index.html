@@ -13,7 +13,7 @@
             Published at {{ .Date.Format "January 2, 2006" }}
             {{ with .Params.tags }}
             | Tagged with:
-            {{ range $i, $tag := . }}{{ if $i }}, {{ end }}<a href="{{ "/tags/" | relURL }}{{ $tag | urlize }}/" rel="tag">{{ $tag }}</a>{{ end }}
+            {{ range $i, $tag := . }}{{ if $i }}, {{ end }}<a href="{{ "/tag/" | relURL }}{{ $tag | urlize }}/" rel="tag">{{ $tag }}</a>{{ end }}
             {{ end }}
         </p>
         <div class="article-body">
