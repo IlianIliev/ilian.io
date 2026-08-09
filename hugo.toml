@@ -27,6 +27,11 @@ enableRobotsTXT = true
   quality = 90
   resampleFilter = "Lanczos"
 
+[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepQuotes = true
+
 [outputFormats]
   [outputFormats.FeedCompat]
     mediaType = "text/html"
