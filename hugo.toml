@@ -31,7 +31,7 @@ enableRobotsTXT = true
   home = ["HTML", "RSS"]
   section = ["HTML"]
   taxonomy = ["HTML"]
-  term = ["HTML"]
+  term = ["HTML", "RSS"]
 
 [services]
   [services.disqus]
