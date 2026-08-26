@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "hugo server --buildDrafts",
-    "build": "hugo --minify",
+    "build": "hugo --minify && node scripts/generate-tag-redirects.js",
     "new": "hugo new"
   },
   "devDependencies": {
